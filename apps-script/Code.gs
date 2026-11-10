@@ -36,8 +36,9 @@ function doPost(e) {
   finally { lock.releaseLock(); }
 }
 
-const PUBLIC_ACTIONS = { info: a_info, register: a_register, findPass: a_findPass, claimPrepay: a_claimPrepay };
-const STAFF_ACTIONS = { verify: a_verify, list: a_list, checkin: a_checkin, walkin: a_walkin, pay: a_pay, prepay: a_prepay, undo: a_undo, remove: a_remove, settings: a_settings };
+const PUBLIC_ACTIONS = { info: a_info, register: a_register, findPass: a_findPass, claimPrepay: a_claimPrepay, donate: a_donate, donationStatus: a_donationStatus };
+const STAFF_ACTIONS = { verify: a_verify, list: a_list, checkin: a_checkin, walkin: a_walkin, pay: a_pay, prepay: a_prepay, undo: a_undo, remove: a_remove, settings: a_settings,
+  donations: a_donations, donationSet: a_donationSet };
 
 function route_(b) {
   if (PUBLIC_ACTIONS[b.action]) return Object.assign({ ok: true }, PUBLIC_ACTIONS[b.action](b));
@@ -165,6 +166,70 @@ function a_settings(b) {
   }
   return { cfg: cfg_() };
 }
+
+/* ---------------- donations (UPI, verified by staff) ---------------- */
+const DSHEET = 'Donations';
+const DHEAD = ['Donation ID', 'Name', 'Mobile', 'Amount (₹)', 'UPI Ref (UTR)', 'Status', 'Submitted At', 'Checked At'];
+const DSTATUS = { Pending: 'pending', Verified: 'verified', Rejected: 'rejected' };
+
+/** Donor says they paid and gives the UPI transaction ID; recorded as Pending until staff verify it. */
+function a_donate(b) {
+  const amount = Math.round(Number(b.amount));
+  if (!(amount >= 10 && amount <= 100000)) throw new Error('Enter an amount between ₹10 and ₹1,00,000.');
+  const phone = normPhone_(b.phone);
+  if (phone.length !== 10) throw new Error('Enter your 10-digit mobile number so you can check the status later.');
+  const name = String(b.name || '').trim().replace(/\s+/g, ' ').slice(0, 80);
+  const utr = String(b.utr || '').replace(/\s+/g, '').toUpperCase();
+  if (!/^[A-Z0-9]{10,35}$/.test(utr)) throw new Error('Enter the UPI transaction ID (UTR) from your payment app, usually 12 digits.');
+  const sh = dsheet_(), rows = drows_(sh);
+  if (rows.some(r => r.d.utr === utr) || rows_(sheet_()).some(r => r.rec.utr === utr)) throw new Error('That transaction ID has already been submitted.');
+  const ids = new Set(rows.map(r => r.d.id));
+  let id;
+  do { id = 'DON-' + Array.from({ length: 5 }, () => ALPH[Math.floor(Math.random() * ALPH.length)]).join(''); } while (ids.has(id));
+  sh.appendRow([id, safe_(name), "'" + phone, amount, "'" + utr, 'Pending', new Date(), '']);
+  return { donation: pubDon_(dfind_(sh, id).d) };
+}
+
+/** Donor checks their donation status (needs the ID and the same mobile number). */
+function a_donationStatus(b) {
+  const hit = dfind_(dsheet_(), b.id);
+  if (!hit || hit.d.phone !== normPhone_(b.phone)) throw new Error('Donation not found.');
+  return { donation: pubDon_(hit.d) };
+}
+
+function a_donations() { return { donations: drows_(dsheet_()).map(r => r.d) }; }
+
+function a_donationSet(b) {
+  const sh = dsheet_(), hit = dfind_(sh, b.id);
+  if (!hit) throw new Error('Donation not found.');
+  const status = { Verified: 'Verified', Rejected: 'Rejected' }[b.status] || 'Pending';
+  sh.getRange(hit.row, 6, 1, 3).setValues([[status, hit.d.submittedAt ? new Date(hit.d.submittedAt) : '', status === 'Pending' ? '' : new Date()]]);
+  return { donation: dfind_(sh, b.id).d };
+}
+
+function dsheet_() {
+  const ss = SpreadsheetApp.getActiveSpreadsheet();
+  let sh = ss.getSheetByName(DSHEET);
+  if (!sh) {
+    sh = ss.insertSheet(DSHEET);
+    sh.appendRow(DHEAD);
+    sh.setFrozenRows(1);
+    sh.getRange(1, 1, 1, DHEAD.length).setFontWeight('bold').setBackground('#081633').setFontColor('#D8FF1F');
+    sh.getRange('C:C').setNumberFormat('@'); sh.getRange('E:E').setNumberFormat('@');
+    sh.getRange('G:H').setNumberFormat('dd-mmm-yyyy h:mm am/pm');
+  }
+  return sh;
+}
+function drows_(sh) {
+  const last = sh.getLastRow();
+  if (last < 2) return [];
+  const ms = x => x instanceof Date ? x.getTime() : (x ? new Date(x).getTime() || null : null);
+  return sh.getRange(2, 1, last - 1, DHEAD.length).getValues().map((v, i) => ({ row: i + 2, d: {
+    id: String(v[0]), name: String(v[1] || ''), phone: normPhone_(v[2]), amount: Number(v[3]) || 0, utr: String(v[4] || '').toUpperCase(),
+    status: DSTATUS[String(v[5])] || 'pending', submittedAt: ms(v[6]), checkedAt: ms(v[7]) } }));
+}
+function dfind_(sh, id) { id = String(id || '').toUpperCase().trim(); return drows_(sh).find(r => r.d.id === id) || null; }
+function pubDon_(d) { return { id: d.id, name: d.name, amount: d.amount, status: d.status, utr: d.utr ? '••••' + d.utr.slice(-4) : '', submittedAt: d.submittedAt, checkedAt: d.checkedAt }; }
 
 /* ---------------- helpers ---------------- */
 function checkin_(sh, hit) {

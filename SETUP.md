@@ -77,6 +77,15 @@ People who might arrive after 5:45 PM can prepay the ₹100 dinner by UPI from t
 - The Excel export includes prepay status, UTR and times, plus totals on the Summary sheet.
 - Leave `vpa` empty to hide the whole option.
 
+## Donations page
+
+`/donate.html` is linked from the nav bar ("♥ Donate"), the glass island menu, the phone ☰ menu and the footer. It uses the same UPI ID as the dinner prepay (`upi.vpa` in `site/config.js`) and stays as "Online donations open soon" until that's set.
+
+- The donor picks ₹100 / ₹250 / ₹500 / ₹1000 or types an amount, adds their mobile number (and their name, optionally), then pays with **Pay with UPI app**, the GPay / PhonePe / Paytm buttons or the QR.
+- They enter the **UPI transaction ID (UTR)**. The page shows **Verification pending** (spinning hourglass) and checks by itself every 15 seconds. They can close it and come back on the same phone.
+- In the admin panel, the **Donations** section lists every donation with the full UTR. Check it in your bank / UPI app, then tap **✓ Verified** (or **✕ Reject**). The donor's page turns to **Payment successful** with a check mark and confetti, or to "We couldn't verify this payment".
+- Donations are saved in a new **Donations** tab in your Google Sheet (created automatically after you update `Code.gs`) and exported as a **Donations** sheet in the Excel file.
+
 **Practice mode:** add `?demo=1` to any page address (for example `/gate-bayvwmtwla.html?demo=1`) to try everything with fake data on that device only, with PIN `1234`. The live Google Sheet isn't touched. Handy for training volunteers.
 
 ## Good to know

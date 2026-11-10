@@ -40,6 +40,7 @@ const Local = (() => {
     if (late && fee > 0 && r.prepay === "received") Object.assign(r, { checkedInAt: now, fee, dinner: "paid", payMode: PREPAY_MODE, paidAt: now });
     else Object.assign(r, { checkedInAt: now, fee, dinner: late && fee > 0 ? "due" : "free" });
   }
+  const pubDon = x => ({ id: x.id, name: x.name, amount: x.amount, status: x.status, utr: x.utr ? "••••" + x.utr.slice(-4) : "", submittedAt: x.submittedAt, checkedAt: x.checkedAt });
   const pub = r => ({ code: r.code, name: r.name, phone: r.phone, checkedInAt: r.checkedInAt, dinner: r.dinner, fee: r.fee, prepay: r.prepay || "none", utr: r.utr ? "••••" + r.utr.slice(-4) : "", prepayAt: r.prepayAt || null });
   const find = (d, c) => d.regs.find(r => r.code === String(c || "").toUpperCase().trim());
   const A = {
@@ -87,6 +88,29 @@ const Local = (() => {
     pay(b) { const d = load(), r = find(d, b.code); if (!r) throw new Error("Pass not found."); if (r.dinner === "due") Object.assign(r, { dinner: "paid", payMode: b.mode === "UPI" ? "UPI" : "Cash", paidAt: Date.now() }); save(d); return { rec: r }; },
     undo(b) { const d = load(), r = find(d, b.code); if (!r) throw new Error("Pass not found."); Object.assign(r, { checkedInAt: null, dinner: "wait", fee: 0, payMode: "", paidAt: null }); save(d); return { rec: r }; },
     remove(b) { const d = load(); d.regs = d.regs.filter(r => r.code !== b.code); save(d); return {}; },
+    donate(b) {
+      const d = load(); d.donations = d.donations || [];
+      const amount = Math.round(Number(b.amount));
+      if (!(amount >= 10 && amount <= 100000)) throw new Error("Enter an amount between ₹10 and ₹1,00,000.");
+      const phone = normPhone(b.phone); if (phone.length !== 10) throw new Error("Enter your 10-digit mobile number so you can check the status later.");
+      const utr = String(b.utr || "").replace(/\s+/g, "").toUpperCase();
+      if (!/^[A-Z0-9]{10,35}$/.test(utr)) throw new Error("Enter the UPI transaction ID (UTR) from your payment app, usually 12 digits.");
+      if (d.donations.some(x => x.utr === utr) || d.regs.some(x => x.utr === utr)) throw new Error("That transaction ID has already been submitted.");
+      let id; do { id = "DON-" + Array.from({ length: 5 }, () => ALPH[Math.floor(Math.random() * ALPH.length)]).join(""); } while (d.donations.some(x => x.id === id));
+      const x = { id, name: String(b.name || "").trim().slice(0, 80), phone, amount, utr, status: "pending", submittedAt: Date.now(), checkedAt: null };
+      d.donations.push(x); save(d); return { donation: pubDon(x) };
+    },
+    donationStatus(b) {
+      const x = (load().donations || []).find(x => x.id === String(b.id || "").toUpperCase().trim());
+      if (!x || x.phone !== normPhone(b.phone)) throw new Error("Donation not found.");
+      return { donation: pubDon(x) };
+    },
+    donations() { return { donations: load().donations || [] }; },
+    donationSet(b) {
+      const d = load(), x = (d.donations || []).find(x => x.id === b.id); if (!x) throw new Error("Donation not found.");
+      x.status = { Verified: "verified", Rejected: "rejected" }[b.status] || "pending"; x.checkedAt = x.status === "pending" ? null : Date.now();
+      save(d); return { donation: x };
+    },
     settings(b) {
       const d = load();
       if (b.cutoff != null) { if (!/^([01]\d|2[0-3]):[0-5]\d$/.test(b.cutoff)) throw new Error("Cutoff must look like 17:45."); d.cfg.cutoff = b.cutoff; }
@@ -94,7 +118,7 @@ const Local = (() => {
       save(d); return { cfg: d.cfg };
     }
   };
-  const STAFF = ["verify", "list", "checkin", "walkin", "pay", "prepay", "undo", "remove", "settings"];
+  const STAFF = ["verify", "list", "checkin", "walkin", "pay", "prepay", "undo", "remove", "settings", "donations", "donationSet"];
   return {
     call(action, b) {
       return new Promise((res, rej) => setTimeout(() => {
@@ -109,9 +133,9 @@ const Local = (() => {
 })();
 
 /* UPI payment link (NPCI format). Amount is fixed; the pass code goes in the note and reference. */
-function upiLink(code, amount) {
+function upiLink(code, amount, note) {
   const u = CFG.upi || {}; if (!u.vpa) return "";
-  const q = new URLSearchParams({ pa: u.vpa, pn: u.name || "Let's Talk GFC", am: Number(amount).toFixed(2), cu: "INR", tn: `${code} dinner prepay`, tr: code });
+  const q = new URLSearchParams({ pa: u.vpa, pn: u.name || "Let's Talk GFC", am: Number(amount).toFixed(2), cu: "INR", tn: note || `${code} dinner prepay`, tr: code });
   return "upi://pay?" + q.toString().replace(/\+/g, "%20");
 }
 

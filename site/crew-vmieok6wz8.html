@@ -21,6 +21,10 @@
 .stat.free .n{color:var(--lime)} .stat.due .n{color:var(--yellow)} .stat.cash .n{color:var(--cyan)}
 .stat.check .n{color:var(--amber)}
 .b-check{background:var(--amber);color:var(--navy)} .b-ok{background:var(--lime);color:var(--navy)} .b-no{background:#FF7272;color:var(--navy)}
+.dstats{display:flex;gap:10px;flex-wrap:wrap;margin:6px 0 4px}
+.dstats span{background:var(--panel);border:2px solid var(--line);padding:6px 12px;font:600 15px var(--f-body)}
+.dstats b{color:var(--lime);font-variant-numeric:tabular-nums}
+.dnote{color:var(--amber);font-size:15px;margin:8px 0 0}
 .utr{display:block;font:600 13px ui-monospace,Consolas,monospace;color:var(--ink-dim);margin-top:4px;letter-spacing:.04em}
 .toolbar{display:flex;gap:10px;flex-wrap:wrap;align-items:center}
 .toolbar .inp{flex:1 1 220px;width:auto}
@@ -41,7 +45,7 @@ tr:hover td{background:rgba(63,220,255,.05)}
 .links{display:flex;gap:14px;flex-wrap:wrap;font-family:var(--f-pixel)}
 .links code{background:var(--panel);padding:4px 8px;color:var(--lime);word-break:break-all}
 </style>
-<script src="config.js?v=5"></script>
+<script src="config.js?v=6"></script>
 </head>
 <body>
 <canvas id="sky" aria-hidden="true"></canvas>
@@ -84,6 +88,25 @@ tr:hover td{background:rgba(63,220,255,.05)}
     </div></div>
 
     <div class="px yellow"><div class="in">
+      <div class="toolbar">
+        <h2 class="sec" style="margin-right:auto">Dona<span class="yellow-t">tions</span></h2>
+        <div class="chips" id="dchips">
+          <button class="chip" data-f="all" aria-pressed="true">All</button>
+          <button class="chip" data-f="pending" aria-pressed="false">To verify</button>
+          <button class="chip" data-f="verified" aria-pressed="false">Verified</button>
+          <button class="chip" data-f="rejected" aria-pressed="false">Rejected</button>
+        </div>
+      </div>
+      <div class="dstats" id="dstats"></div>
+      <p class="dim" style="margin:4px 0 0">Check each UTR in your bank / UPI app before tapping Verified. The donor's page turns to "Payment successful" within about 15 seconds.</p>
+      <p class="dnote" id="dnote" hidden></p>
+      <div class="tablewrap"><table>
+        <thead><tr><th>ID</th><th>Name</th><th>Mobile</th><th>Amount</th><th>UPI ref (UTR)</th><th>Submitted</th><th>Status</th><th style="text-align:right">Actions</th></tr></thead>
+        <tbody id="dtb"><tr class="empty"><td colspan="8">Loading…</td></tr></tbody>
+      </table></div>
+    </div></div>
+
+    <div class="px yellow"><div class="in">
       <h2 class="sec">Dinner <span class="yellow-t">rule</span></h2>
       <p class="dim">Anyone checked in after this time is asked to pay. The public page still says “arrive by <span id="arr"></span>”, so this works as a grace window.</p>
       <form id="cfg" class="settings" novalidate>
@@ -103,7 +126,7 @@ tr:hover td{background:rgba(63,220,255,.05)}
 </div>
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
-<script src="assets/gfc.js?v=5"></script>
+<script src="assets/gfc.js?v=6"></script>
 <script>
 (() => {
 const { $, $$, esc, api, Snd, toast, fmtT, fmtDT, cutLabel, CFG } = GFC;
@@ -114,8 +137,37 @@ $("#lScan").textContent = base + "gate-bayvwmtwla.html"; $("#lAdmin").textConten
 let PIN = "", regs = [], cfg = { cutoff: "17:45", fee: 100 }, filter = "all", loadedAt = 0;
 setInterval(() => { $("#clk").textContent = new Date().toLocaleTimeString("en-IN", { hour: "numeric", minute: "2-digit" }).toUpperCase(); if (loadedAt) $("#sync").textContent = `Updated ${Math.round((Date.now() - loadedAt) / 1000)}s ago`; }, 1000);
 
+let dons = [], dfilter = "all", donOK = true;
+async function loadDonations() {
+  try { const r = await api("donations", { pin: PIN }); dons = r.donations || []; donOK = true; }
+  catch (e) { if (e.auth === false) throw e; donOK = false; }
+  renderDonations();
+}
+const dBadge = st => ({ verified: `<span class="badge b-ok">VERIFIED ✓</span>`, rejected: `<span class="badge b-no">REJECTED</span>` }[st] || `<span class="badge b-check">TO VERIFY</span>`);
+function renderDonations() {
+  $("#dnote").hidden = donOK; if (!donOK) $("#dnote").textContent = "Donations need the updated Code.gs. Paste it into Apps Script and deploy a new version (see SETUP.md).";
+  const sum = f => dons.filter(f).reduce((s, d) => s + (+d.amount || 0), 0), inr = n => "₹" + n.toLocaleString("en-IN");
+  $("#dstats").innerHTML = `<span>Verified <b>${inr(sum(d => d.status === "verified"))}</b> · ${dons.filter(d => d.status === "verified").length}</span><span>To verify <b>${inr(sum(d => d.status === "pending"))}</b> · ${dons.filter(d => d.status === "pending").length}</span><span>Rejected · ${dons.filter(d => d.status === "rejected").length}</span>`;
+  const rows = [...dons].sort((a, b) => (b.submittedAt || 0) - (a.submittedAt || 0)).filter(d => dfilter === "all" || d.status === dfilter);
+  $("#dtb").innerHTML = rows.length ? rows.map(d => `<tr>
+    <td class="code">${esc(d.id)}</td><td>${esc(d.name) || '<span class="dim">—</span>'}</td><td class="num">${esc(d.phone)}</td>
+    <td class="num"><b>₹${(+d.amount).toLocaleString("en-IN")}</b></td><td class="num" style="font-family:ui-monospace,Consolas,monospace">${esc(d.utr)}</td>
+    <td class="num">${fmtDT(d.submittedAt)}</td><td>${dBadge(d.status)}</td>
+    <td><div class="acts">
+      ${d.status !== "verified" ? `<button class="btn px small" data-d="Verified" data-id="${esc(d.id)}" type="button"><span class="in">✓ Verified</span></button>` : ""}
+      ${d.status === "pending" ? `<button class="btn danger px small" data-d="Rejected" data-id="${esc(d.id)}" type="button"><span class="in">✕ Reject</span></button>` : ""}
+      ${d.status !== "pending" ? `<button class="btn ghost px small" data-d="Pending" data-id="${esc(d.id)}" type="button"><span class="in">↺ Undo</span></button>` : ""}
+    </div></td></tr>`).join("") : `<tr class="empty"><td colspan="8">${dons.length ? "No donations match this filter." : donOK ? "No donations yet." : "Not available yet."}</td></tr>`;
+}
+$("#dchips").addEventListener("click", e => { const b = e.target.closest(".chip"); if (!b) return; dfilter = b.dataset.f; $$("#dchips .chip").forEach(c => c.setAttribute("aria-pressed", String(c === b))); renderDonations(); });
+$("#dtb").addEventListener("click", async e => {
+  const b = e.target.closest("[data-d]"); if (!b) return; b.disabled = true;
+  try { await api("donationSet", { pin: PIN, id: b.dataset.id, status: b.dataset.d }); if (b.dataset.d === "Verified") Snd.coin(); toast(`${b.dataset.id} marked ${b.dataset.d.toLowerCase()}`); await loadDonations(); }
+  catch (ex) { toast(ex.message, "red"); b.disabled = false; }
+});
+
 async function load(quiet) {
-  try { const r = await api("list", { pin: PIN }); regs = r.regs; cfg = r.cfg; loadedAt = Date.now(); render(); }
+  try { const r = await api("list", { pin: PIN }); regs = r.regs; cfg = r.cfg; loadedAt = Date.now(); render(); await loadDonations(); }
   catch (e) { if (e.auth === false) { sessionStorage.removeItem("gfc-pin"); location.reload(); } else if (!quiet) toast(e.message, "red"); }
 }
 const badge = r => r.dinner === "free" ? `<span class="badge b-free">FREE</span>` : r.dinner === "due" ? `<span class="badge b-due">₹${r.fee} DUE</span>` : r.dinner === "paid" ? `<span class="badge b-paid">₹${r.fee} PAID · ${esc(r.payMode)}</span>` : `<span class="badge b-wait">NOT ARRIVED</span>`;
@@ -203,6 +255,14 @@ $("#xls").addEventListener("click", async () => {
   ], { cellDates: true });
   ss["!cols"] = [{ wch: 26 }, { wch: 22 }];
   const wb = XLSX.utils.book_new(); XLSX.utils.book_append_sheet(wb, ws, "Attendees"); XLSX.utils.book_append_sheet(wb, ss, "Summary");
+  if (dons.length) {
+    const dh = ["Donation ID", "Name", "Mobile", "Amount (₹)", "UPI ref (UTR)", "Status", "Submitted at", "Checked at"];
+    const dr = [...dons].sort((a, b) => (a.submittedAt || 0) - (b.submittedAt || 0)).map(x => [x.id, x.name || "", x.phone, +x.amount || 0, x.utr, { verified: "Verified", rejected: "Rejected" }[x.status] || "To verify", d(x.submittedAt), d(x.checkedAt)]);
+    const verified = dons.filter(x => x.status === "verified").reduce((s, x) => s + (+x.amount || 0), 0);
+    const dws = XLSX.utils.aoa_to_sheet([dh, ...dr, [], ["", "", "Verified total", verified]], { cellDates: true, dateNF: "dd-mmm-yyyy h:mm AM/PM" });
+    dws["!cols"] = [12, 24, 14, 12, 18, 12, 20, 20].map(w => ({ wch: w }));
+    XLSX.utils.book_append_sheet(wb, dws, "Donations");
+  }
   XLSX.writeFile(wb, `LetsTalkGFC-attendees-${new Date().toISOString().slice(0, 16).replace(/[:T]/g, "-")}.xlsx`);
   Snd.coin(); toast("Excel file downloaded");
 });

@@ -1,0 +1,272 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Donate · Let's Talk GFC</title>
+<meta name="description" content="Support Let's Talk GFC — God, Faith & Conversations, by Christos Mar Thoma Church Yuvajana Sakhyam, Kakkanad.">
+<meta name="theme-color" content="#0A86EE">
+<link rel="icon" href="assets/logo.png">
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Kanit:ital,wght@0,400;0,500;0,600;0,700;0,800;0,900;1,700;1,800;1,900&display=swap">
+<link rel="stylesheet" href="assets/gfc.css?v=6">
+<style>
+/* Donate: top bar · title · one card that moves through Amount → Pay → Confirm → Status */
+:root{--f-display:"Kanit","Arial Black",system-ui,sans-serif;--f-body:"Kanit",system-ui,-apple-system,"Segoe UI",sans-serif;--f-pixel:var(--f-body);
+  --navy:#0B1838;--panel:#10224C;--lime:#D8FF1F;--cyan:#33D4FF;--yellow:#FFE81A;--soft:#C9DBF7;--red:#FF7272}
+body{font-family:var(--f-body);font-size:17px;background:#0A86EE}
+.container{position:relative;z-index:2;width:100%;max-width:980px;margin:0 auto;padding-left:max(clamp(16px,3.2vw,40px),env(safe-area-inset-left,0px));padding-right:max(clamp(16px,3.2vw,40px),env(safe-area-inset-right,0px))}
+.otext{font-family:var(--f-display);font-weight:900;font-style:italic}
+.otext::before{-webkit-text-stroke:.16em var(--navy);text-shadow:.03em .04em 0 #1A55E0,.06em .08em 0 #1A55E0,.08em .1em 0 var(--navy)}
+.ptext{font-family:var(--f-body);font-weight:600;color:#fff;text-shadow:0 2px 0 var(--navy),2px 0 0 var(--navy),-2px 0 0 var(--navy),0 -1px 0 var(--navy),2px 3px 0 var(--navy)}
+
+.top{position:relative;z-index:3;display:flex;align-items:center;gap:14px;padding-block:14px calc(6px);padding-top:calc(14px + env(safe-area-inset-top,0px))}
+.brand{display:flex;align-items:center;gap:12px;text-decoration:none;color:#fff}
+.brand img{width:48px;filter:drop-shadow(0 3px 0 rgba(11,24,56,.35))}
+.mini{display:flex;flex-direction:column;align-items:flex-start;line-height:.8;transform:rotate(-4deg) skewX(-5deg)}
+.mini .otext{--fs:24px}.mini .otext.lime{--fs:36px;margin-top:2px}
+.top .back{margin-left:auto}
+.top .back .in{padding:10px 16px;font-size:15px}
+
+.hero{text-align:center;padding-block:16px 18px;display:flex;flex-direction:column;align-items:center;gap:10px}
+.hero h1{margin:0;line-height:1}
+.hero h1 .otext{--fs:clamp(44px,8vw,76px)}
+.hero p{margin:0;font-size:clamp(17px,2.2vw,20px);max-width:52ch}
+
+.card .in{padding:clamp(18px,3vw,30px);display:flex;flex-direction:column;gap:18px}
+.steps{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px;margin:0;padding:0}
+.steps li{list-style:none;display:flex;align-items:center;gap:8px;padding:10px;background:#0E2150;border:2px solid #2E58B8;font:600 14px var(--f-body);color:var(--soft)}
+.steps li b{flex:none;width:26px;height:26px;display:grid;place-items:center;background:#2E58B8;color:#fff;font:900 14px var(--f-display)}
+.steps li.on{border-color:var(--lime);color:#fff}.steps li.on b{background:var(--lime);color:var(--navy)}
+.steps li.done b{background:var(--cyan);color:var(--navy)}
+.steps ol{margin:0;padding:0;display:contents}
+@media (max-width:520px){.steps li span{display:none}.steps li{justify-content:center}}
+
+.view[hidden]{display:none!important}
+.view{display:flex;flex-direction:column;gap:16px}
+.view h2{margin:0;font:italic 900 clamp(24px,3.6vw,32px)/1.05 var(--f-display);text-transform:uppercase}
+.view h2 em{font-style:inherit;color:var(--lime)}
+.amts{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px}
+@media (max-width:520px){.amts{grid-template-columns:repeat(2,minmax(0,1fr))}}
+.amt{border:3px solid #2E58B8;background:#0E2150;color:#fff;padding:16px 8px;font:italic 900 24px/1 var(--f-display);cursor:pointer;transition:transform .1s,border-color .15s}
+.amt:hover{border-color:var(--cyan)}.amt:active{transform:scale(.97)}
+.amt[aria-pressed="true"]{border-color:var(--lime);background:var(--lime);color:var(--navy)}
+.amt:focus-visible{outline:3px solid var(--yellow);outline-offset:2px}
+.fields{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+.fields .full{grid-column:1/-1}
+@media (max-width:540px){.fields{grid-template-columns:1fr}}
+label.lab{font:600 16px var(--f-body);color:#fff;margin-bottom:6px}
+label.lab .req{color:var(--lime)} label.lab .opt{color:var(--soft);font-weight:500}
+.inp{font:500 18px var(--f-body);background:#0E2150;border:3px solid #2E58B8;padding:13px 14px}
+.inp::placeholder{color:#7F9BD0}
+.rupee{position:relative}.rupee::before{content:"₹";position:absolute;left:14px;top:50%;translate:0 -50%;font:700 18px var(--f-body);color:var(--soft)}.rupee .inp{padding-left:32px}
+.err{font:500 16px var(--f-body);color:var(--red);margin:0}.err:empty{display:none}
+.fine{font-size:15px;color:var(--soft);margin:0}
+.btn .in{font-family:var(--f-display);font-weight:900}
+.wide,.wide .in{width:100%}.wide .in{padding:17px;font-size:20px}
+
+.payGrid{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:20px;align-items:start}
+@media (max-width:720px){.payGrid{grid-template-columns:minmax(0,1fr)}}
+.payBox{display:flex;flex-direction:column;align-items:center;gap:10px;text-align:center}
+.bigAmt{font:italic 900 clamp(44px,8vw,64px)/1 var(--f-display);color:var(--lime)}
+.payBox canvas{width:210px;max-width:100%;height:auto;image-rendering:pixelated;border:4px solid #fff}
+.payBox .cap{font:600 15px var(--f-body);color:#fff}
+.payBox small{font-size:13px;color:var(--soft);word-break:break-all}
+.apps{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px;width:100%}
+.apps a{padding:11px 6px;background:#0E2150;border:2px solid #2E58B8;color:#fff;text-decoration:none;font:700 14px var(--f-body);text-align:center}
+.apps a:hover{border-color:var(--lime)}
+@media (pointer:coarse){.payBox canvas{width:170px;order:5}.payBox .cap{order:6}.payBox small{order:7}}
+.utrBox{display:flex;flex-direction:column;gap:10px}
+.link{background:none;border:0;color:var(--cyan);font:600 15px var(--f-body);cursor:pointer;padding:0;text-align:left;text-decoration:underline}
+
+/* status */
+.status{align-items:center;text-align:center;gap:14px;padding-block:8px}
+.status .lead{font-size:17px;color:var(--soft);max-width:44ch;margin:0}
+.status dl{display:grid;grid-template-columns:auto auto;gap:6px 18px;margin:0;padding:14px 18px;background:#0E2150;border:2px solid #2E58B8;text-align:left}
+.status dt{color:var(--soft);font-size:15px}.status dd{margin:0;font-weight:700;color:#fff;font-variant-numeric:tabular-nums}
+.anim{width:150px;height:150px;position:relative;display:grid;place-items:center}
+/* pending: spinning ring + flipping hourglass */
+.ring{position:absolute;inset:0;border-radius:50%;border:8px solid rgba(255,232,26,.18);border-top-color:var(--yellow);border-right-color:var(--yellow);animation:spin 1.3s linear infinite}
+.glass{width:54px;height:70px;animation:flip 2.6s ease-in-out infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
+@keyframes flip{0%,40%{transform:rotate(0)}50%,90%{transform:rotate(180deg)}100%{transform:rotate(360deg)}}
+.pulse{display:flex;gap:6px}.pulse i{width:9px;height:9px;border-radius:50%;background:var(--yellow);animation:dots 1.2s ease-in-out infinite}
+.pulse i:nth-child(2){animation-delay:.15s}.pulse i:nth-child(3){animation-delay:.3s}
+@keyframes dots{0%,80%,100%{opacity:.25;transform:translateY(0)}40%{opacity:1;transform:translateY(-6px)}}
+/* success: drawn check in a lime burst */
+.okc{width:150px;height:150px}
+.okc .c{stroke:var(--lime);stroke-width:8;fill:rgba(216,255,31,.12);stroke-dasharray:440;stroke-dashoffset:440;animation:draw .7s ease-out forwards}
+.okc .k{stroke:var(--lime);stroke-width:12;fill:none;stroke-linecap:round;stroke-linejoin:round;stroke-dasharray:120;stroke-dashoffset:120;animation:draw .45s .6s ease-out forwards}
+.okc{animation:pop .5s 1s cubic-bezier(.2,.9,.25,1.4) both}
+@keyframes draw{to{stroke-dashoffset:0}}
+@keyframes pop{0%{transform:scale(1)}50%{transform:scale(1.12)}100%{transform:scale(1)}}
+.bad .c{stroke:var(--red);fill:rgba(255,114,114,.12)} .bad .k{stroke:var(--red)}
+.status h2.ok{color:var(--lime)} .status h2.no{color:var(--red)}
+@media (prefers-reduced-motion:reduce){.ring,.glass,.pulse i,.okc,.okc .c,.okc .k{animation:none!important;stroke-dashoffset:0!important}}
+
+footer{position:relative;z-index:2;margin-top:28px;background:var(--navy);border-top:3px solid var(--lime);padding-block:18px calc(18px + env(safe-area-inset-bottom,0px))}
+footer .container{display:flex;flex-wrap:wrap;gap:10px 24px;align-items:center;justify-content:space-between;font-size:15px;color:var(--soft)}
+footer b{color:#fff} footer a{color:var(--lime);font-weight:700;text-decoration:none}
+.soon .in{text-align:center;padding:30px}
+</style>
+<script src="config.js?v=6"></script>
+</head>
+<body>
+<canvas id="sky" aria-hidden="true"></canvas>
+<canvas id="fx" aria-hidden="true"></canvas>
+
+<div class="container">
+  <header class="top">
+    <a class="brand" href="index.html"><img src="assets/logo.png" alt="Christos Mar Thoma Church Yuvajana Sakhyam crest">
+      <span class="mini" aria-label="Let's Talk GFC"><span class="otext" data-t="Let's Talk">Let's Talk</span><span class="otext lime" data-t="GFC">GFC</span></span></a>
+    <a class="btn ghost px back" href="index.html"><span class="in">← Registration</span></a>
+  </header>
+
+  <section class="hero">
+    <h1><span class="otext" data-t="Support GFC">Support GFC</span></h1>
+    <p class="ptext">Help us make Let's Talk GFC happen: the evening, the dinner and the conversations. Every rupee goes straight to Christos Mar Thoma Church Yuvajana Sakhyam.</p>
+  </section>
+
+  <div id="demoSlot"></div>
+
+  <div class="px yellow card" id="card"><div class="in">
+    <ol class="steps" aria-label="Steps"><li data-s="1"><b>1</b><span>Amount</span></li><li data-s="2"><b>2</b><span>Pay by UPI</span></li><li data-s="3"><b>3</b><span>Confirm</span></li></ol>
+
+    <!-- 1 · amount -->
+    <form class="view" id="v1" novalidate>
+      <h2>Choose an <em>amount</em></h2>
+      <div class="amts" id="amts">
+        <button type="button" class="amt" data-v="100" aria-pressed="false">₹100</button>
+        <button type="button" class="amt" data-v="250" aria-pressed="true">₹250</button>
+        <button type="button" class="amt" data-v="500" aria-pressed="false">₹500</button>
+        <button type="button" class="amt" data-v="1000" aria-pressed="false">₹1000</button>
+      </div>
+      <div class="fields">
+        <div class="full"><label class="lab" for="amt">Or type an amount</label><div class="rupee"><input class="inp" id="amt" type="number" inputmode="numeric" min="10" max="100000" step="1" placeholder="Any amount" value="250"></div></div>
+        <div><label class="lab" for="dName">Your name <span class="opt">(optional)</span></label><input class="inp" id="dName" autocomplete="name" maxlength="80" placeholder="Shown only to the team"></div>
+        <div><label class="lab" for="dPhone">Mobile number <span class="req">*</span></label><input class="inp" id="dPhone" type="tel" inputmode="tel" autocomplete="tel" maxlength="16" placeholder="To check your status"></div>
+      </div>
+      <p class="err" id="e1" role="alert"></p>
+      <button class="btn px wide" type="submit"><span class="in">Continue to pay ₹<span class="amtL">250</span> ▶</span></button>
+    </form>
+
+    <!-- 2 · pay -->
+    <form class="view" id="v2" hidden novalidate>
+      <h2>Pay ₹<span class="amtL">250</span> by <em>UPI</em></h2>
+      <div class="payGrid">
+        <div class="payBox">
+          <div class="bigAmt">₹<span class="amtL">250</span></div>
+          <a class="btn px wide" id="payLink" href="#"><span class="in"><span>Pay with UPI app</span></span></a>
+          <div class="apps"><a id="aGpay" href="#">GPay</a><a id="aPhonepe" href="#">PhonePe</a><a id="aPaytm" href="#">Paytm</a></div>
+          <canvas id="qr" aria-label="UPI QR code"></canvas>
+          <span class="cap">Or scan with any UPI app</span>
+          <small>Paying to <b id="vpaL"></b></small>
+        </div>
+        <div class="utrBox">
+          <label class="lab" for="utr">After paying, enter the UPI transaction ID (UTR) <span class="req">*</span></label>
+          <input class="inp" id="utr" inputmode="numeric" autocomplete="off" maxlength="35" placeholder="e.g. 431298765432">
+          <p class="fine">Find it in your UPI app under the payment's details. It's usually 12 digits.</p>
+          <p class="err" id="e2" role="alert"></p>
+          <button class="btn px wide" type="submit" id="subBtn"><span class="in">I've paid · Submit</span></button>
+          <button class="link" type="button" id="back1">← Change amount</button>
+        </div>
+      </div>
+    </form>
+
+    <!-- 3 · status -->
+    <div class="view status" id="v3" hidden aria-live="polite"></div>
+  </div></div>
+
+  <div class="px cyan soon" id="soon" hidden><div class="in"><b>Online donations open soon.</b><br><span class="dim">Please contact the Yuvajana Sakhyam Secretary: +91 79091 91060.</span></div></div>
+</div>
+
+<footer><div class="container">
+  <span><b>Christos Mar Thoma Church Yuvajana Sakhyam</b> · Lighted to Lighten</span>
+  <span>Questions? Secretary <a href="tel:+917909191060">+91 79091 91060</a></span>
+</div></footer>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcode-generator/1.4.4/qrcode.min.js"></script>
+<script src="assets/gfc.js?v=6"></script>
+<script>
+(() => {
+const { $, $$, api, FX, CFG, store, toast, esc, fmtDT } = GFC;
+GFC.Snd.on = false;
+GFC.initSky($("#sky"));
+GFC.demoBanner && GFC.demoBanner($("#demoSlot"));
+const UPI = CFG.upi || {};
+let amount = 250, don = null, pollT = 0;
+
+if (!UPI.vpa) { $("#card").hidden = true; $("#soon").hidden = false; }
+
+function setStep(n) {
+  $$(".steps li").forEach(li => { const s = +li.dataset.s; li.classList.toggle("on", s === n); li.classList.toggle("done", s < n); });
+  ["v1", "v2", "v3"].forEach((id, i) => $("#" + id).hidden = i + 1 !== n);
+}
+function setAmount(v) {
+  amount = Math.round(Number(v) || 0);
+  $$(".amtL").forEach(e => e.textContent = amount > 0 ? amount.toLocaleString("en-IN") : "—");
+  $$("#amts .amt").forEach(b => b.setAttribute("aria-pressed", String(+b.dataset.v === amount)));
+}
+$("#amts").addEventListener("click", e => { const b = e.target.closest(".amt"); if (!b) return; $("#amt").value = b.dataset.v; setAmount(b.dataset.v); });
+$("#amt").addEventListener("input", e => setAmount(e.target.value));
+
+$("#v1").addEventListener("submit", ev => {
+  ev.preventDefault(); const err = $("#e1");
+  if (!(amount >= 10 && amount <= 100000)) { err.textContent = "Enter an amount between ₹10 and ₹1,00,000."; $("#amt").focus(); return; }
+  if (GFC.normPhone($("#dPhone").value).length !== 10) { err.textContent = "Enter your 10-digit mobile number so you can check the status later."; $("#dPhone").focus(); return; }
+  err.textContent = "";
+  const ref = "GFCD" + Date.now().toString(36).toUpperCase().slice(-6);
+  const link = GFC.upiLink(ref, amount, "Let's Talk GFC donation"), qs = link.slice("upi://pay?".length);
+  $("#payLink").href = link; $("#aGpay").href = "tez://upi/pay?" + qs; $("#aPhonepe").href = "phonepe://pay?" + qs; $("#aPaytm").href = "paytmmp://pay?" + qs;
+  $("#vpaL").textContent = UPI.vpa; GFC.drawQR($("#qr"), link, 240);
+  setStep(2); $("#card").scrollIntoView({ behavior: GFC.reduced ? "auto" : "smooth", block: "start" });
+});
+$("#back1").addEventListener("click", () => setStep(1));
+
+$("#v2").addEventListener("submit", async ev => {
+  ev.preventDefault(); const err = $("#e2"), btn = $("#subBtn"); err.textContent = ""; btn.disabled = true;
+  try {
+    const r = await api("donate", { amount, name: $("#dName").value, phone: $("#dPhone").value, utr: $("#utr").value });
+    don = Object.assign(r.donation, { phone: GFC.normPhone($("#dPhone").value) });
+    store.set("gfc-my-donation", { id: don.id, phone: don.phone });
+    showStatus(); poll();
+  } catch (e) { err.textContent = e.message; }
+  finally { btn.disabled = false; }
+});
+
+const HOURGLASS = '<svg class="glass" viewBox="0 0 54 70" aria-hidden="true"><path d="M6 4h42M6 66h42M11 4c0 18 16 22 16 31S11 48 11 66M43 4c0 18-16 22-16 31s16 13 16 31" fill="none" stroke="#FFE81A" stroke-width="5" stroke-linecap="round"/><path d="M17 14h20l-10 14z" fill="#FFE81A"/><path d="M15 62c4-8 8-10 12-10s8 2 12 10z" fill="#FFE81A"/></svg>';
+const CHECK = '<svg class="okc" viewBox="0 0 150 150" aria-hidden="true"><circle class="c" cx="75" cy="75" r="68"/><path class="k" d="M44 78l22 22 42-46"/></svg>';
+const CROSS = '<svg class="okc bad" viewBox="0 0 150 150" aria-hidden="true"><circle class="c" cx="75" cy="75" r="68"/><path class="k" d="M52 52l46 46M98 52l-46 46"/></svg>';
+let lastStatus = "";
+function showStatus() {
+  if (!don) return;
+  setStep(3);
+  const v = $("#v3"), st = don.status;
+  const rows = `<dl><dt>Donation ID</dt><dd>${esc(don.id)}</dd><dt>Amount</dt><dd>₹${Number(don.amount).toLocaleString("en-IN")}</dd><dt>UPI ref</dt><dd>${esc(don.utr)}</dd><dt>Submitted</dt><dd>${fmtDT(don.submittedAt)}</dd></dl>`;
+  if (st === "verified") {
+    v.innerHTML = `${CHECK}<h2 class="ok">Payment successful</h2><p class="lead">Thank you${don.name ? ", " + esc(don.name.split(" ")[0]) : ""}! We've received your gift of ₹${Number(don.amount).toLocaleString("en-IN")}. God bless you.</p>${rows}<a class="btn px" href="index.html"><span class="in">Back to registration</span></a><button class="link" type="button" id="again">Make another donation</button>`;
+    if (lastStatus !== "verified") setTimeout(() => FX.confetti(220), 900);
+  } else if (st === "rejected") {
+    v.innerHTML = `${CROSS}<h2 class="no">We couldn't verify this payment</h2><p class="lead">We didn't find this transaction in our account. Check the transaction ID and try again, or contact the Secretary on +91 79091 91060.</p>${rows}<button class="btn px" type="button" id="again"><span class="in">Try again</span></button>`;
+  } else {
+    v.innerHTML = `<div class="anim"><span class="ring"></span>${HOURGLASS}</div><h2>Verification <em>pending</em></h2><div class="pulse" aria-hidden="true"><i></i><i></i><i></i></div><p class="lead">We've got your payment details. Our team will check it against our bank and confirm it. This page updates by itself, so you can keep it open or come back later.</p>${rows}<button class="btn ghost px" type="button" id="checkNow"><span class="in">↻ Check now</span></button>`;
+  }
+  lastStatus = st;
+  const again = $("#again"); if (again) again.onclick = () => { store.del("gfc-my-donation"); don = null; lastStatus = ""; clearTimeout(pollT); $("#utr").value = ""; setStep(1); };
+  const cn = $("#checkNow"); if (cn) cn.onclick = () => refresh(true);
+}
+async function refresh(manual) {
+  if (!don) return;
+  try { const r = await api("donationStatus", { id: don.id, phone: don.phone }); Object.assign(don, r.donation); showStatus(); if (manual && don.status === "pending") toast("Still being checked. We'll update this page."); }
+  catch (e) { if (manual) toast(e.message, "red"); }
+}
+function poll() { clearTimeout(pollT); if (don && don.status === "pending") pollT = setTimeout(async () => { await refresh(false); poll(); }, 15000); }
+document.addEventListener("visibilitychange", () => { if (!document.hidden && don && don.status === "pending") { refresh(false); poll(); } });
+
+setAmount(250); setStep(1);
+const saved = store.get("gfc-my-donation", null);
+if (saved && saved.id && UPI.vpa) { don = { id: saved.id, phone: saved.phone, status: "pending", amount: 0 }; refresh(false).then(() => { if (don.amount) { showStatus(); poll(); } else { don = null; setStep(1); } }); }
+})();
+</script>
+</body>
+</html>
