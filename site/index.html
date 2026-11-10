@@ -186,6 +186,20 @@ label.lab .req{color:var(--lime)}
 
 /* vibe button */
 
+/* phone: buttons full width and evenly stacked */
+@media (max-width:560px){
+  .heroBtns{display:grid;grid-template-columns:minmax(0,1fr);gap:10px;width:100%}
+  .heroBtns .btn,.heroBtns .btn .in{width:100%}
+  .passCol{width:100%}
+  #passBtns{flex-direction:column;align-items:stretch;width:100%;max-width:340px;gap:10px}
+  #passBtns .btn,#passBtns .btn .in{width:100%}
+  .lost .btn,.lost .btn .in{width:100%}
+  .cta .in{flex-direction:column;align-items:stretch;text-align:center;gap:12px}
+  .cta .btn,.cta .btn .in{width:100%}
+  .memfoot{flex-direction:column;align-items:stretch;text-align:center}
+  .memfoot .btn,.memfoot .btn .in{width:100%}
+}
+
 /* game */
 .gameWrap{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,clamp(380px,34vw,560px));gap:22px;align-items:stretch}
 .gameSide{display:flex;flex-direction:column;gap:16px}
@@ -451,7 +465,7 @@ function measureDx() {
 function setMenu(open) { badge.classList.toggle("open", open); document.documentElement.classList.toggle("island-open", open); badgeBtn.setAttribute("aria-expanded", String(open)); $("#badgeReg").tabIndex = open ? 0 : -1; }
 let compact = false;
 function onScroll() {
-  const c = scrollY > 90;
+  const c = scrollY > (innerWidth <= 560 ? 24 : 60);
   if (c !== compact) { if (c) measureDx(); compact = c; topbar.classList.toggle("compact", c); if (!c) setMenu(false); }
 }
 addEventListener("scroll", onScroll, { passive: true }); addEventListener("resize", () => { if (!compact) measureDx(); });
