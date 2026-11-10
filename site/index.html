@@ -186,6 +186,47 @@ label.lab .req{color:var(--lime)}
 
 /* vibe button */
 
+/* phone: burger menu (Register + Vibe) replaces the separate buttons */
+.burger,.bmenu{display:none}
+@media (max-width:560px){
+  .dock,.tb-right .btn{display:none!important}
+  .topbar .bar{padding-right:calc(max(16px,env(safe-area-inset-right,0px)) + 62px)!important}
+  .burger{display:flex;position:fixed;top:calc(16px + env(safe-area-inset-top,0px));right:max(16px,env(safe-area-inset-right,0px));z-index:36;
+    width:48px;height:48px;border-radius:50%;flex-direction:column;align-items:center;justify-content:center;gap:5px;cursor:pointer;color:#fff;padding:0}
+  .burger span{display:block;width:20px;height:2.5px;border-radius:2px;background:currentColor;transition:transform .25s,opacity .2s}
+  .burger[aria-expanded="true"] span:nth-child(1){transform:translateY(7.5px) rotate(45deg)}
+  .burger[aria-expanded="true"] span:nth-child(2){opacity:0}
+  .burger[aria-expanded="true"] span:nth-child(3){transform:translateY(-7.5px) rotate(-45deg)}
+  .burger .dot{position:absolute;top:9px;right:9px;width:9px;height:9px;border-radius:50%;background:var(--lime);box-shadow:0 0 0 2px var(--navy);opacity:0;transition:opacity .2s}
+  .burger.waiting .dot,.burger.playing .dot{opacity:1}
+  .burger.waiting .dot{animation:dotp 1.4s ease-in-out infinite}
+  @keyframes dotp{50%{transform:scale(1.35)}}
+  .burger:focus-visible{outline:2px solid var(--yellow);outline-offset:3px}
+  .bmenu{display:flex;position:fixed;top:calc(74px + env(safe-area-inset-top,0px));right:max(16px,env(safe-area-inset-right,0px));z-index:36;
+    width:min(300px,calc(100vw - 32px));flex-direction:column;gap:12px;padding:16px;border-radius:24px;
+    opacity:0;visibility:hidden;transform:translateY(-8px) scale(.97);transform-origin:top right;transition:opacity .2s,transform .25s cubic-bezier(.2,.9,.25,1.15),visibility .2s}
+  .bmenu.open{opacity:1;visibility:visible;transform:none}
+  .bmenu .btn,.bmenu .btn .in{width:100%}
+  .bmenu .btn .in{padding:14px 18px;font-size:18px}
+  .bmVibe{display:flex;align-items:center;gap:12px;width:100%;padding:12px 14px;border-radius:16px;border:1px solid rgba(255,255,255,.22);background:rgba(255,255,255,.06);color:#fff;cursor:pointer;text-align:left;font:inherit}
+  .bmVibe svg{width:22px;height:22px;flex:none}
+  .bmVibe .t{display:flex;flex-direction:column;gap:1px;flex:1;min-width:0}
+  .bmVibe .t b{font:italic 900 16px/1.1 var(--f-display);text-transform:uppercase}
+  .bmVibe .t small{font:500 13px/1.3 var(--f-body);color:rgba(255,255,255,.8)}
+  .bmVibe .sw{flex:none;width:44px;height:26px;border-radius:13px;background:rgba(255,255,255,.25);position:relative;transition:background .2s}
+  .bmVibe .sw::after{content:"";position:absolute;top:3px;left:3px;width:20px;height:20px;border-radius:50%;background:#fff;transition:transform .2s}
+  .bmVibe[aria-pressed="true"]{border-color:rgba(216,255,31,.6)}
+  .bmVibe[aria-pressed="true"] svg{color:var(--lime)}
+  .bmVibe[aria-pressed="true"] .sw{background:var(--lime)}
+  .bmVibe[aria-pressed="true"] .sw::after{transform:translateX(18px);background:var(--navy)}
+  .bmVibe:focus-visible{outline:2px solid var(--yellow);outline-offset:2px}
+  .bmLinks{display:flex;gap:8px}
+  .bmLinks a{flex:1;text-align:center;padding:10px 8px;border-radius:14px;background:rgba(255,255,255,.08);color:#fff;text-decoration:none;font:600 14px var(--f-body)}
+  .bmLinks a:active{background:rgba(255,255,255,.16)}
+  .bmenu .when{font:500 13px var(--f-body);color:rgba(255,255,255,.8);text-align:center}
+  html.island-open .burger{opacity:1;visibility:visible}
+}
+
 /* phone: buttons full width and evenly stacked */
 @media (max-width:560px){
   .heroBtns{display:grid;grid-template-columns:minmax(0,1fr);gap:10px;width:100%}
@@ -421,6 +462,17 @@ footer .copy{grid-column:1/-1;border-top:1px solid #1d3770;padding-top:12px;font
   </div>
 </footer>
 
+<button class="burger glass" type="button" id="burgerBtn" aria-expanded="false" aria-controls="bmenu" aria-label="Open menu"><span></span><span></span><span></span><i class="dot" aria-hidden="true"></i></button>
+<div class="bmenu glass" id="bmenu" role="menu" aria-label="Menu">
+  <a class="btn px" href="#register" id="bmReg" role="menuitem"><span class="in">▶ Register now</span></a>
+  <button class="bmVibe" type="button" id="bmVibe" role="menuitemcheckbox" aria-pressed="false">
+    <svg viewBox="0 0 16 16" aria-hidden="true" shape-rendering="crispEdges"><path fill="currentColor" d="M5 1h6v1h2v1h1v2h1v6h-1v-5h-1V4h-1V3h-2V2H6v1H4v1H3v2H2v5H1V5h1V3h1V2h2z"/><path fill="currentColor" d="M1 9h4v6H2v-1H1zM11 9h4v5h-1v1h-3z"/></svg>
+    <span class="t"><b class="lbl">Vibe on</b><small>Music + sea breeze · earphones recommended</small></span>
+    <span class="sw" aria-hidden="true"></span>
+  </button>
+  <div class="bmLinks"><a href="#details" role="menuitem">Event details</a><a href="#game" role="menuitem">Memory Match</a></div>
+  <div class="when">Fri 13 Nov 2026 · 6 PM · Kakkanad</div>
+</div>
 <div class="dock" id="dock">
   <button class="vibe glass" type="button" id="vibeBtn" aria-pressed="false" aria-label="Background music and beach sounds">
     <span class="in"><svg viewBox="0 0 16 16" aria-hidden="true" shape-rendering="crispEdges"><path fill="currentColor" d="M5 1h6v1h2v1h1v2h1v6h-1v-5h-1V4h-1V3h-2V2H6v1H4v1H3v2H2v5H1V5h1V3h1V2h2z"/><path fill="currentColor" d="M1 9h4v6H2v-1H1zM11 9h4v5h-1v1h-3z"/></svg><span class="lbl">Vibe on</span><span class="eq" aria-hidden="true"><i></i><i></i><i></i></span></span>
@@ -462,7 +514,7 @@ function measureDx() {
   const t = $("#tbTitle").getBoundingClientRect();
   badge.style.setProperty("--dx", Math.round((t.left + t.width / 2) - innerWidth / 2) + "px");
 }
-function setMenu(open) { badge.classList.toggle("open", open); document.documentElement.classList.toggle("island-open", open); badgeBtn.setAttribute("aria-expanded", String(open)); $("#badgeReg").tabIndex = open ? 0 : -1; }
+function setMenu(open) { if (open && window.__closeBurger) window.__closeBurger(); badge.classList.toggle("open", open); document.documentElement.classList.toggle("island-open", open); badgeBtn.setAttribute("aria-expanded", String(open)); $("#badgeReg").tabIndex = open ? 0 : -1; }
 let compact = false;
 function onScroll() {
   const c = scrollY > (innerWidth <= 560 ? 24 : 60);
@@ -493,6 +545,9 @@ function paintVibe() {
   vibeBtn.setAttribute("aria-pressed", String(vibe));
   vibeBtn.classList.toggle("waiting", vibe && !playing);
   vibeBtn.querySelector(".lbl").textContent = vibe ? "Vibe on" : "Vibe off";
+  const bv = $("#bmVibe"), bb = $("#burgerBtn");
+  if (bv) { bv.setAttribute("aria-pressed", String(vibe && playing)); bv.querySelector(".lbl").textContent = vibe && playing ? "Vibe on" : (vibe ? "Tap to start the vibe" : "Vibe off"); }
+  if (bb) { bb.classList.toggle("waiting", vibe && !playing); bb.classList.toggle("playing", vibe && playing); }
 }
 function showTip(t, ms) { tip.textContent = t; tip.classList.remove("gone"); clearTimeout(tipT); if (ms) tipT = setTimeout(() => tip.classList.add("gone"), ms); }
 function startSound() {
@@ -504,13 +559,30 @@ function startSound() {
 }
 function vibeOn() { vibe = true; paintVibe(); startSound(); }
 function vibeOff() { vibe = false; playing = false; paintVibe(); GFCAmbient.stop(); fadeTo(0, 900, () => bgm.pause()); showTip("Vibe off. Tap the button any time to bring it back.", 3000); }
-vibeBtn.addEventListener("click", () => {
+function toggleVibe() {
   if (vibe && playing) { vibeOff(); userOff = true; }
   else { userOff = false; vibeOn(); }
   try { sessionStorage.setItem("gfc-vibe-off", userOff ? "1" : "0"); } catch (e) { }
-});
+}
+vibeBtn.addEventListener("click", toggleVibe);
+$("#bmVibe").addEventListener("click", toggleVibe);
+
+/* burger menu (phones) */
+const burger = $("#burgerBtn"), bmenu = $("#bmenu");
+window.__closeBurger = () => setBurger(false);
+function setBurger(open) {
+  bmenu.classList.toggle("open", open); burger.setAttribute("aria-expanded", String(open));
+  burger.setAttribute("aria-label", open ? "Close menu" : "Open menu");
+  if (open) setMenu(false);
+}
+burger.addEventListener("click", e => { e.stopPropagation(); setBurger(!bmenu.classList.contains("open")); });
+bmenu.querySelectorAll("a").forEach(a => a.addEventListener("click", () => setBurger(false)));
+$("#bmReg").addEventListener("click", () => setTimeout(() => $("#name").focus({ preventScroll: true }), 500));
+document.addEventListener("click", e => { if (bmenu.classList.contains("open") && !bmenu.contains(e.target) && e.target !== burger) setBurger(false); });
+addEventListener("keydown", e => { if (e.key === "Escape" && bmenu.classList.contains("open")) { setBurger(false); burger.focus(); } });
+addEventListener("resize", () => { if (innerWidth > 560) setBurger(false); });
 const GESTURES = ["pointerdown", "pointerup", "touchend", "click", "keydown"];
-function onGesture(e) { if (e && e.target && e.target.closest && e.target.closest("#vibeBtn")) return; if (vibe && !playing) startSound(); }
+function onGesture(e) { if (e && e.target && e.target.closest && e.target.closest("#vibeBtn, #bmVibe")) return; if (vibe && !playing) startSound(); }
 function unlisten() { GESTURES.forEach(t => removeEventListener(t, onGesture, true)); }
 GESTURES.forEach(t => addEventListener(t, onGesture, true));
 document.addEventListener("visibilitychange", () => { if (!vibe || !playing) return; if (document.hidden) bgm.pause(); else bgm.play().catch(() => {}); });
