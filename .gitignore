@@ -1,0 +1,16 @@
+# Not part of the website
+*.mp3
+!site/assets/audio/*.mp3
+*.png
+!site/assets/*.png
+gfc-checkin*.html
+/assets/
+.claude/
+
+# OS / editor clutter
+.DS_Store
+Thumbs.db
+desktop.ini
+.vercel
+.netlify
+node_modules/

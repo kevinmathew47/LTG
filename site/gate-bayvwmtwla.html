@@ -1,0 +1,222 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="robots" content="noindex,nofollow">
+<title>GFC Entry Scanner</title>
+<meta name="theme-color" content="#071330">
+<link rel="icon" href="assets/logo.png">
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Press+Start+2P&family=Pixelify+Sans:wght@500;600;700&family=Rubik:ital,wght@0,400;0,500;0,700;0,800;1,700;1,800;1,900&display=swap">
+<link rel="stylesheet" href="assets/gfc.css">
+<style>
+.grid{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:18px;align-items:start;padding-bottom:40px}
+@media (max-width:860px){.grid{grid-template-columns:minmax(0,1fr)}.result{order:-1}}
+.cam{position:relative;background:#000;aspect-ratio:4/3;max-width:100%;overflow:hidden}
+.cam video{width:100%;height:100%;object-fit:cover;display:block}
+.cam .aim{position:absolute;inset:18%;border:4px dashed var(--lime);pointer-events:none;animation:aim 1.2s steps(2) infinite}
+@keyframes aim{50%{border-color:var(--yellow)}}
+.cam .off{position:absolute;inset:0;display:grid;place-items:center;text-align:center;font-family:var(--f-pixel);color:var(--ink-dim);padding:20px}
+.or{display:flex;align-items:center;gap:10px;color:var(--ink-dim);font-family:var(--f-pixel);font-size:14px;margin:16px 0 10px}
+.or::before,.or::after{content:"";flex:1;height:2px;background:var(--line)}
+.hits{display:flex;flex-direction:column;gap:6px;margin-top:8px}
+.hit{display:flex;gap:10px;align-items:center;justify-content:space-between;background:var(--panel);padding:8px 10px;flex-wrap:wrap}
+.hit small{color:var(--ink-dim);font-family:var(--f-pixel)}
+.result .in{display:flex;flex-direction:column;gap:12px;min-height:340px}
+.result .big{font:italic 900 clamp(34px,6.4vw,58px)/.92 var(--f-display);text-transform:uppercase;text-wrap:balance}
+.result .who{font:800 26px/1.1 var(--f-body)}
+.result .meta{font-family:var(--f-pixel);color:var(--ink-dim);font-size:15px}
+.result.ok .big{color:var(--lime)} .result.due .big{color:var(--yellow)} .result.bad .big{color:var(--red)} .result.warn .big{color:var(--amber)}
+.result.flash{animation:flash .5s steps(4)}
+@keyframes flash{0%{transform:scale(.95);filter:brightness(2)}100%{transform:none}}
+.walkin .fields{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+@media (max-width:520px){.walkin .fields{grid-template-columns:1fr}}
+.mini{display:flex;gap:14px;flex-wrap:wrap;font-family:var(--f-pixel);font-size:15px;color:var(--ink-dim)}
+.mini b{color:var(--white);font-variant-numeric:tabular-nums}
+</style>
+<script src="config.js?v=4"></script>
+</head>
+<body>
+<canvas id="sky" aria-hidden="true"></canvas>
+<canvas id="fx" aria-hidden="true"></canvas>
+<div class="wrap">
+  <div class="staffbar">
+    <img class="logo" src="assets/logo.png" alt="">
+    <div class="gtitle"><span class="otext l1" data-t="Let's Talk">Let's Talk</span><span class="otext lime l2" data-t="GFC">GFC</span></div>
+    <div class="who">ENTRY SCANNER</div>
+    <span class="clock" id="clk">--:--</span><span class="pill" id="win">—</span>
+    <nav><a class="btn ghost px small" href="crew-vmieok6wz8.html"><span class="in">Admin</span></a><button class="btn ghost px small" id="snd" type="button"><span class="in">♪ On</span></button></nav>
+  </div>
+  <div id="demoSlot"></div>
+  <div class="grid">
+    <div class="px cyan"><div class="in">
+      <div class="cam" id="cam"><video id="vid" playsinline muted></video><div class="aim" id="aim" hidden></div>
+        <div class="off" id="camOff">Camera is off.<br>Tap “Start camera” and point it at the QR pass.</div></div>
+      <div class="row" style="margin-top:12px">
+        <button class="btn px" id="camBtn" type="button"><span class="in">📷 Start camera</span></button>
+        <label class="btn ghost px" for="snap" style="margin:0"><span class="in">Snap photo</span></label>
+        <input id="snap" type="file" accept="image/*" capture="environment" hidden>
+      </div>
+      <div class="or">or type / handheld scanner</div>
+      <form id="codeForm" class="row" novalidate>
+        <input class="inp" id="codeIn" autocomplete="off" autocapitalize="characters" placeholder="GFC-XXXX" style="flex:1 1 180px;width:auto;font-family:var(--f-pixel);font-size:22px;letter-spacing:.08em">
+        <button class="btn px" type="submit"><span class="in">Check in</span></button>
+      </form>
+      <div class="or">lost their pass?</div>
+      <label class="lab" for="findIn">Find by name or phone</label>
+      <input class="inp" id="findIn" type="search" autocomplete="off" placeholder="Start typing…">
+      <div class="hits" id="hits"></div>
+      <div class="or">walk-in, not registered</div>
+      <form id="walk" class="walkin" novalidate>
+        <div class="fields">
+          <div><label class="lab" for="wName">Name</label><input class="inp" id="wName" autocomplete="off" maxlength="80"></div>
+          <div><label class="lab" for="wPhone">Mobile</label><input class="inp" id="wPhone" type="tel" inputmode="tel" autocomplete="off" maxlength="16"></div>
+        </div>
+        <p class="err" id="walkErr" role="alert"></p>
+        <button class="btn yellow px" type="submit" id="walkBtn"><span class="in">Register + check in</span></button>
+      </form>
+    </div></div>
+
+    <div class="px result" id="res"><div class="in" id="resIn">
+      <div class="meta">READY PLAYER</div>
+      <div class="big" style="color:var(--white)">Waiting for a scan</div>
+      <div class="meta" id="rule"></div>
+      <div class="mini" id="mini"></div>
+    </div></div>
+  </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/jsqr@1.4.0/dist/jsQR.min.js"></script>
+<script src="assets/gfc.js"></script>
+<script>
+(() => {
+const { $, esc, api, Snd, FX, toast, fmtT, cutLabel } = GFC;
+GFC.initSky($("#sky")); GFC.demoBanner($("#demoSlot"));
+let PIN = "", cfg = { cutoff: "17:45", fee: 100 }, regs = [], busy = false;
+const sndBtn = $("#snd"); const ps = () => sndBtn.querySelector(".in").textContent = Snd.on ? "♪ On" : "♪ Off"; ps(); sndBtn.onclick = () => { Snd.toggle(); ps(); };
+
+function tick() {
+  const n = new Date(); $("#clk").textContent = n.toLocaleTimeString("en-IN", { hour: "numeric", minute: "2-digit" }).toUpperCase();
+  const [h, m] = cfg.cutoff.split(":").map(Number), left = h * 60 + m - (n.getHours() * 60 + n.getMinutes()), w = $("#win");
+  if (left >= 0) { w.className = "pill"; w.textContent = left <= 90 ? `Free dinner · ${left} min left` : `Free dinner till ${cutLabel(cfg.cutoff)}`; }
+  else { w.className = "pill late"; w.textContent = `Late now · ₹${cfg.fee}`; }
+  $("#rule").textContent = `Free dinner up to ${cutLabel(cfg.cutoff)} · after that ₹${cfg.fee}`;
+}
+setInterval(tick, 10000);
+
+async function refresh() {
+  try { const r = await api("list", { pin: PIN }); regs = r.regs; cfg = r.cfg; tick(); mini(); renderHits(); }
+  catch (e) { if (e.auth === false) location.reload(); }
+}
+function mini() {
+  const inn = regs.filter(r => r.checkedInAt).length, due = regs.filter(r => r.dinner === "due").length;
+  $("#mini").innerHTML = `<span>Registered <b>${regs.length}</b></span><span>Inside <b>${inn}</b></span><span>₹ due <b>${due}</b></span>`;
+}
+
+const parseCode = t => { t = String(t || "").toUpperCase().replace(/\s+/g, ""); const m = t.match(/GFC-?([A-Z0-9]{4})/) || t.match(/^([A-Z0-9]{4})$/); return m ? "GFC-" + m[1] : null; };
+const badge = r => r.dinner === "free" ? `<span class="badge b-free">FREE DINNER</span>` : r.dinner === "due" ? `<span class="badge b-due">₹${r.fee} DUE</span>` : r.dinner === "paid" ? `<span class="badge b-paid">₹${r.fee} PAID · ${esc(r.payMode)}</span>` : `<span class="badge b-wait">NOT ARRIVED</span>`;
+
+function show(kind, head, rec, meta) {
+  const box = $("#res"); box.className = "px result " + kind + " " + ({ ok: "green", due: "yellow", bad: "red", warn: "amber" }[kind]);
+  $("#resIn").innerHTML = `<div class="meta">${new Date().toLocaleTimeString("en-IN", { hour: "numeric", minute: "2-digit", second: "2-digit" }).toUpperCase()} · SCAN</div>
+    <div class="big">${esc(head)}</div>
+    ${rec ? `<div class="who">${esc(rec.name)}</div><div class="meta">${esc(rec.code)} · ${esc(rec.phone)}${rec.org ? " · " + esc(rec.org) : ""}</div><div>${badge(rec)}</div>` : ""}
+    <div class="meta">${esc(meta || "")}</div>
+    ${rec && rec.dinner === "due" ? `<div class="row"><button class="btn px" data-pay="Cash" type="button"><span class="in">Paid ₹${rec.fee} · Cash</span></button><button class="btn px" data-pay="UPI" type="button"><span class="in">Paid ₹${rec.fee} · UPI</span></button></div>` : ""}
+    <div class="meta" id="rule"></div><div class="mini" id="mini"></div>`;
+  tick(); mini();
+  $("#resIn").querySelectorAll("[data-pay]").forEach(b => b.onclick = async () => {
+    b.disabled = true;
+    try { const r = await api("pay", { pin: PIN, code: rec.code, mode: b.dataset.pay }); Snd.good(); show("ok", "Paid · enjoy dinner", r.rec, `Arrived ${fmtT(r.rec.checkedInAt)}`); refresh(); }
+    catch (e) { toast(e.message, "red"); b.disabled = false; }
+  });
+  void box.offsetWidth; box.classList.add("flash");
+  const r = box.getBoundingClientRect(); if (kind === "ok") FX.burst(r.left + r.width / 2, r.top + 80, 30);
+  ({ ok: () => Snd.good(), due: () => Snd.due(), bad: () => Snd.bad(), warn: () => Snd.due() })[kind]();
+  if (navigator.vibrate && (!navigator.userActivation || navigator.userActivation.hasBeenActive)) navigator.vibrate(kind === "ok" ? 60 : [80, 60, 80]);
+}
+
+async function checkIn(code) {
+  if (busy) return; busy = true;
+  try {
+    const r = await api("checkin", { pin: PIN, code });
+    if (r.status === "notfound") show("bad", "Not registered", null, `${code}: no registration found. Use walk-in below.`);
+    else if (r.status === "already") show(r.rec.dinner === "due" ? "due" : "warn", "Already checked in", r.rec, `Arrived at ${fmtT(r.rec.checkedInAt)}`);
+    else if (r.rec.dinner === "due") show("due", `Collect ₹${r.rec.fee}`, r.rec, `Arrived ${fmtT(r.rec.checkedInAt)} · after the ${cutLabel(cfg.cutoff)} cutoff`);
+    else show("ok", "Welcome! Free dinner", r.rec, `Arrived ${fmtT(r.rec.checkedInAt)} · on time`);
+    refresh();
+  } catch (e) { show("bad", "Couldn't check in", null, e.message); }
+  finally { busy = false; $("#codeIn").value = ""; }
+}
+
+$("#codeForm").addEventListener("submit", e => { e.preventDefault(); const c = parseCode($("#codeIn").value); if (c) checkIn(c); else show("bad", "Unreadable code", null, "Codes look like GFC-AB12."); });
+
+/* camera */
+let stream = null, raf = 0, lastCode = "", lastAt = 0;
+const work = document.createElement("canvas"), wg = work.getContext("2d", { willReadFrequently: true });
+$("#camBtn").addEventListener("click", async () => {
+  if (stream) return stopCam();
+  try {
+    stream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: "environment", width: { ideal: 1280 } }, audio: false });
+    const v = $("#vid"); v.srcObject = stream; await v.play();
+    $("#camOff").hidden = true; $("#aim").hidden = false; $("#camBtn .in").textContent = "■ Stop camera";
+    const loop = () => {
+      if (!stream) return;
+      if (v.readyState >= 2 && !busy) {
+        const s = Math.min(1, 640 / Math.max(v.videoWidth, v.videoHeight)); work.width = v.videoWidth * s | 0; work.height = v.videoHeight * s | 0;
+        wg.drawImage(v, 0, 0, work.width, work.height);
+        const q = jsQR(wg.getImageData(0, 0, work.width, work.height).data, work.width, work.height, { inversionAttempts: "dontInvert" });
+        const c = q && parseCode(q.data);
+        if (c && (c !== lastCode || Date.now() - lastAt > 5000)) { lastCode = c; lastAt = Date.now(); checkIn(c); }
+      }
+      raf = requestAnimationFrame(loop);
+    };
+    loop();
+  } catch (e) { stream = null; toast("Camera blocked. Allow camera access in the browser, or use Snap photo.", "red"); }
+});
+function stopCam() { cancelAnimationFrame(raf); stream && stream.getTracks().forEach(t => t.stop()); stream = null; $("#camOff").hidden = false; $("#aim").hidden = true; $("#camBtn .in").textContent = "📷 Start camera"; }
+
+$("#snap").addEventListener("change", async e => {
+  const f = e.target.files && e.target.files[0]; e.target.value = ""; if (!f) return;
+  try {
+    const url = URL.createObjectURL(f), img = new Image(); img.src = url; await img.decode(); let found = null;
+    for (const max of [1400, 900, 600]) {
+      const s = Math.min(1, max / Math.max(img.width, img.height)); work.width = img.width * s | 0; work.height = img.height * s | 0;
+      wg.drawImage(img, 0, 0, work.width, work.height);
+      const q = jsQR(wg.getImageData(0, 0, work.width, work.height).data, work.width, work.height, { inversionAttempts: "attemptBoth" });
+      if (q) { found = q.data; break; }
+    }
+    URL.revokeObjectURL(url);
+    const c = parseCode(found); if (c) checkIn(c); else show("bad", "No QR found", null, "Fill the frame with the QR and try again.");
+  } catch (err) { show("bad", "Couldn't read photo", null, "Try again or type the code."); }
+});
+
+/* find */
+$("#findIn").addEventListener("input", renderHits);
+function renderHits() {
+  const q = $("#findIn").value.trim().toLowerCase(), el = $("#hits"); if (q.length < 2) { el.innerHTML = ""; return; }
+  const d = q.replace(/\D/g, "");
+  const list = regs.filter(r => r.name.toLowerCase().includes(q) || (d.length >= 3 && r.phone.includes(d)) || r.code.toLowerCase().includes(q)).slice(0, 6);
+  el.innerHTML = list.length ? list.map(r => `<div class="hit"><span><b>${esc(r.name)}</b><br><small>${esc(r.code)} · ${esc(r.phone)}</small></span>${r.checkedInAt ? badge(r) : `<button class="btn px small" data-c="${esc(r.code)}" type="button"><span class="in">Check in</span></button>`}</div>`).join("")
+    : `<div class="hit"><small>No match. Use walk-in below.</small></div>`;
+  el.querySelectorAll("[data-c]").forEach(b => b.onclick = () => { checkIn(b.dataset.c); $("#findIn").value = ""; renderHits(); });
+}
+
+/* walk-in */
+$("#walk").addEventListener("submit", async e => {
+  e.preventDefault(); const err = $("#walkErr"), btn = $("#walkBtn"); err.textContent = ""; btn.disabled = true;
+  try {
+    const r = await api("walkin", { pin: PIN, name: $("#wName").value, phone: $("#wPhone").value });
+    const head = r.status === "already" ? "Already checked in" : r.rec.dinner === "due" ? `Collect ₹${r.rec.fee}` : "Welcome! Free dinner";
+    show(r.status === "already" ? "warn" : r.rec.dinner === "due" ? "due" : "ok", head, r.rec, (r.existing ? "Was already registered · " : "Registered now · ") + `arrived ${fmtT(r.rec.checkedInAt)}`);
+    $("#walk").reset(); refresh();
+  } catch (ex) { err.textContent = ex.message; Snd.bad(); }
+  finally { btn.disabled = false; }
+});
+
+GFC.staffGate((pin, c) => { PIN = pin; if (c && c.cutoff) cfg = { cutoff: c.cutoff, fee: c.fee }; tick(); refresh(); setInterval(refresh, 20000); if (!matchMedia("(pointer:coarse)").matches) $("#codeIn").focus(); });
+})();
+</script>
+</body>
+</html>

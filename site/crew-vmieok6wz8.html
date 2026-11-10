@@ -1,0 +1,195 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="robots" content="noindex,nofollow">
+<title>GFC Admin Panel</title>
+<meta name="theme-color" content="#071330">
+<link rel="icon" href="assets/logo.png">
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Press+Start+2P&family=Pixelify+Sans:wght@500;600;700&family=Rubik:ital,wght@0,400;0,500;0,700;0,800;1,700;1,800;1,900&display=swap">
+<link rel="stylesheet" href="assets/gfc.css">
+<style>
+.stack{display:flex;flex-direction:column;gap:18px;padding-bottom:40px}
+.stats{display:grid;grid-template-columns:repeat(6,minmax(0,1fr));gap:12px}
+@media (max-width:900px){.stats{grid-template-columns:repeat(3,minmax(0,1fr))}}
+@media (max-width:520px){.stats{grid-template-columns:repeat(2,minmax(0,1fr))}}
+.stat .in{padding:12px 14px}
+.stat .n{font:italic 900 clamp(26px,4vw,38px)/1 var(--f-display);font-variant-numeric:tabular-nums}
+.stat .l{font-family:var(--f-pixel);font-size:14px;color:var(--ink-dim)}
+.stat.free .n{color:var(--lime)} .stat.due .n{color:var(--yellow)} .stat.cash .n{color:var(--cyan)}
+.toolbar{display:flex;gap:10px;flex-wrap:wrap;align-items:center}
+.toolbar .inp{flex:1 1 220px;width:auto}
+.chips{display:flex;gap:6px;flex-wrap:wrap}
+.chip{font:500 14px var(--f-pixel);background:var(--panel);color:var(--white);border:2px solid var(--line);padding:6px 10px;cursor:pointer}
+.chip[aria-pressed="true"]{background:var(--cyan);color:var(--navy);border-color:var(--cyan)}
+.tablewrap{overflow-x:auto;margin-top:14px}
+table{width:100%;border-collapse:collapse;min-width:820px;font-size:15px}
+th{font:500 14px var(--f-pixel);color:var(--cyan);text-align:left;padding:8px 10px;border-bottom:2px solid var(--cyan);white-space:nowrap}
+td{padding:9px 10px;border-bottom:1px solid #1d3770;vertical-align:middle}
+td.num{font-variant-numeric:tabular-nums;white-space:nowrap}
+td.code{font-family:var(--f-pixel);color:var(--lime);white-space:nowrap}
+tr:hover td{background:rgba(63,220,255,.05)}
+.acts{display:flex;gap:6px;justify-content:flex-end}
+.empty td{color:var(--ink-dim);font-family:var(--f-pixel);text-align:center;padding:30px}
+.settings{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:14px;align-items:end}
+.sync{font-family:var(--f-pixel);font-size:13px;color:var(--ink-dim)}
+.links{display:flex;gap:14px;flex-wrap:wrap;font-family:var(--f-pixel)}
+.links code{background:var(--panel);padding:4px 8px;color:var(--lime);word-break:break-all}
+</style>
+<script src="config.js?v=4"></script>
+</head>
+<body>
+<canvas id="sky" aria-hidden="true"></canvas>
+<canvas id="fx" aria-hidden="true"></canvas>
+<div class="wrap">
+  <div class="staffbar">
+    <img class="logo" src="assets/logo.png" alt="">
+    <div class="gtitle"><span class="otext l1" data-t="Let's Talk">Let's Talk</span><span class="otext lime l2" data-t="GFC">GFC</span></div>
+    <div class="who">ADMIN PANEL</div>
+    <span class="clock" id="clk">--:--</span>
+    <nav><a class="btn px small" href="gate-bayvwmtwla.html"><span class="in">Open scanner</span></a><a class="btn ghost px small" href="index.html" target="_blank" rel="noopener"><span class="in">Public page ↗</span></a></nav>
+  </div>
+  <div id="demoSlot"></div>
+  <div class="stack">
+    <div class="stats" id="stats"></div>
+    <div class="px cyan"><div class="in">
+      <div class="toolbar">
+        <h2 class="sec" style="margin-right:auto">All <span class="lime-t">players</span></h2>
+        <span class="sync" id="sync">Not loaded yet</span>
+        <button class="btn ghost px small" id="reload" type="button"><span class="in">↻ Refresh</span></button>
+        <button class="btn px" id="xls" type="button"><span class="in">⬇ Export to Excel</span></button>
+      </div>
+      <div style="height:12px"></div>
+      <div class="toolbar">
+        <input class="inp" id="q" type="search" placeholder="Search name, phone, code, parish…" autocomplete="off">
+        <div class="chips" id="chips">
+          <button class="chip" data-f="all" aria-pressed="true">All</button>
+          <button class="chip" data-f="wait" aria-pressed="false">Not arrived</button>
+          <button class="chip" data-f="free" aria-pressed="false">Free dinner</button>
+          <button class="chip" data-f="due" aria-pressed="false">₹ due</button>
+          <button class="chip" data-f="paid" aria-pressed="false">Paid</button>
+        </div>
+      </div>
+      <div class="tablewrap"><table>
+        <thead><tr><th>Code</th><th>Name</th><th>Mobile</th><th>Registered</th><th>Arrived</th><th>Dinner</th><th style="text-align:right">Actions</th></tr></thead>
+        <tbody id="tb"><tr class="empty"><td colspan="7">Loading…</td></tr></tbody>
+      </table></div>
+    </div></div>
+
+    <div class="px yellow"><div class="in">
+      <h2 class="sec">Dinner <span class="yellow-t">rule</span></h2>
+      <p class="dim">Anyone checked in after this time is asked to pay. The public page still says “arrive by <span id="arr"></span>”, so this works as a grace window.</p>
+      <form id="cfg" class="settings" novalidate>
+        <div><label class="lab" for="cut">Free dinner until</label><input class="inp" id="cut" type="time" step="60"></div>
+        <div><label class="lab" for="fee">Late dinner fee (₹)</label><input class="inp" id="fee" type="number" min="0" step="10"></div>
+        <div><button class="btn px" type="submit"><span class="in">Save rule</span></button></div>
+      </form>
+      <p class="err" id="cfgErr" role="alert"></p>
+    </div></div>
+
+    <div class="px white"><div class="in">
+      <h2 class="sec" style="font-size:24px">Staff <span class="cyan-t">links</span></h2>
+      <p class="dim">These pages are not linked from the public site. Share them only with volunteers, together with the staff PIN.</p>
+      <div class="links"><span>Scanner: <code id="lScan"></code></span><span>Admin: <code id="lAdmin"></code></span><span>Public: <code id="lPub"></code></span></div>
+    </div></div>
+  </div>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+<script src="assets/gfc.js"></script>
+<script>
+(() => {
+const { $, $$, esc, api, Snd, toast, fmtT, fmtDT, cutLabel, CFG } = GFC;
+GFC.initSky($("#sky")); GFC.demoBanner($("#demoSlot"));
+$("#arr").textContent = CFG.arriveBy;
+const base = location.href.replace(/[^/]*$/, "");
+$("#lScan").textContent = base + "gate-bayvwmtwla.html"; $("#lAdmin").textContent = base + "crew-vmieok6wz8.html"; $("#lPub").textContent = base;
+let PIN = "", regs = [], cfg = { cutoff: "17:45", fee: 100 }, filter = "all", loadedAt = 0;
+setInterval(() => { $("#clk").textContent = new Date().toLocaleTimeString("en-IN", { hour: "numeric", minute: "2-digit" }).toUpperCase(); if (loadedAt) $("#sync").textContent = `Updated ${Math.round((Date.now() - loadedAt) / 1000)}s ago`; }, 1000);
+
+async function load(quiet) {
+  try { const r = await api("list", { pin: PIN }); regs = r.regs; cfg = r.cfg; loadedAt = Date.now(); render(); }
+  catch (e) { if (e.auth === false) { sessionStorage.removeItem("gfc-pin"); location.reload(); } else if (!quiet) toast(e.message, "red"); }
+}
+const badge = r => r.dinner === "free" ? `<span class="badge b-free">FREE</span>` : r.dinner === "due" ? `<span class="badge b-due">₹${r.fee} DUE</span>` : r.dinner === "paid" ? `<span class="badge b-paid">₹${r.fee} PAID · ${esc(r.payMode)}</span>` : `<span class="badge b-wait">NOT ARRIVED</span>`;
+function render() {
+  const inn = regs.filter(r => r.checkedInAt).length, free = regs.filter(r => r.dinner === "free").length, due = regs.filter(r => r.dinner === "due");
+  const paid = regs.filter(r => r.dinner === "paid").reduce((s, r) => s + (+r.fee || 0), 0);
+  $("#stats").innerHTML = [["", "Registered", regs.length], ["", "Checked in", inn], ["", "Not arrived", regs.length - inn], ["free", "Free dinner", free], ["due", "₹ still due", due.length], ["cash", "Collected", "₹" + paid.toLocaleString("en-IN")]]
+    .map(([c, l, n]) => `<div class="px cyan stat ${c}"><div class="in"><div class="n">${n}</div><div class="l">${l}</div></div></div>`).join("");
+  if (document.activeElement !== $("#cut")) $("#cut").value = cfg.cutoff;
+  if (document.activeElement !== $("#fee")) $("#fee").value = cfg.fee;
+  const q = $("#q").value.trim().toLowerCase();
+  const rows = [...regs].sort((a, b) => (b.registeredAt || 0) - (a.registeredAt || 0))
+    .filter(r => (filter === "all" || r.dinner === filter) && (!q || [r.name, r.phone, r.code, r.org, r.email].join(" ").toLowerCase().includes(q)));
+  $("#tb").innerHTML = rows.length ? rows.map(r => `<tr>
+    <td class="code">${esc(r.code)}</td>
+    <td><b>${esc(r.name)}</b>${r.org ? `<br><small class="dim">${esc(r.org)}</small>` : ""}</td>
+    <td class="num">${esc(r.phone)}</td><td class="num">${fmtDT(r.registeredAt)}</td><td class="num">${r.checkedInAt ? fmtT(r.checkedInAt) : "—"}</td>
+    <td>${badge(r)}</td>
+    <td><div class="acts">
+      ${!r.checkedInAt ? `<button class="btn px small" data-a="checkin" data-c="${esc(r.code)}" type="button"><span class="in">Check in</span></button>` : ""}
+      ${r.dinner === "due" ? `<button class="btn px small" data-a="Cash" data-c="${esc(r.code)}" type="button"><span class="in">Cash</span></button><button class="btn px small" data-a="UPI" data-c="${esc(r.code)}" type="button"><span class="in">UPI</span></button>` : ""}
+      ${r.checkedInAt ? `<button class="btn ghost px small" data-a="undo" data-c="${esc(r.code)}" type="button"><span class="in">Undo</span></button>` : ""}
+      <button class="btn danger px small" data-a="remove" data-c="${esc(r.code)}" type="button"><span class="in">Delete</span></button>
+    </div></td></tr>`).join("")
+    : `<tr class="empty"><td colspan="7">${regs.length ? "No one matches this filter." : "No registrations yet. Share the public page to get players in."}</td></tr>`;
+}
+$("#q").addEventListener("input", render);
+$("#chips").addEventListener("click", e => { const b = e.target.closest(".chip"); if (!b) return; filter = b.dataset.f; $$("#chips .chip").forEach(c => c.setAttribute("aria-pressed", String(c === b))); render(); });
+$("#reload").addEventListener("click", () => load());
+
+$("#tb").addEventListener("click", async e => {
+  const b = e.target.closest("[data-a]"); if (!b) return; const a = b.dataset.a, code = b.dataset.c;
+  if (a === "remove" && !b.classList.contains("armed")) {
+    b.classList.add("armed"); b.querySelector(".in").textContent = "Confirm delete";
+    setTimeout(() => { if (b.isConnected) { b.classList.remove("armed"); b.querySelector(".in").textContent = "Delete"; } }, 3500); return;
+  }
+  b.disabled = true;
+  try {
+    if (a === "checkin") { const r = await api("checkin", { pin: PIN, code }); toast(r.rec && r.rec.dinner === "due" ? `${r.rec.name} checked in · ₹${r.rec.fee} due` : `${r.rec ? r.rec.name : code} checked in`); }
+    else if (a === "Cash" || a === "UPI") { await api("pay", { pin: PIN, code, mode: a }); Snd.coin(); toast(`Payment recorded (${a})`); }
+    else if (a === "undo") { await api("undo", { pin: PIN, code }); toast("Check-in undone"); }
+    else if (a === "remove") { await api("remove", { pin: PIN, code }); toast(`Deleted ${code}`); }
+    await load();
+  } catch (ex) { toast(ex.message, "red"); b.disabled = false; }
+});
+
+$("#cfg").addEventListener("submit", async e => {
+  e.preventDefault(); $("#cfgErr").textContent = "";
+  try { const r = await api("settings", { pin: PIN, cutoff: $("#cut").value || "17:45", fee: $("#fee").value }); cfg = r.cfg; render(); Snd.good(); toast(`Saved: free dinner until ${cutLabel(cfg.cutoff)}, late fee ₹${cfg.fee}`); }
+  catch (ex) { $("#cfgErr").textContent = ex.message; }
+});
+
+$("#xls").addEventListener("click", async () => {
+  await load(true);
+  if (!regs.length) { toast("Nothing to export yet."); return; }
+  const head = ["Pass code", "Name", "Mobile", "Email", "Parish / College / Workplace", "Registered at", "Arrived at", "Arrival", "Dinner", "Amount (₹)", "Payment mode", "Paid at"];
+  const d = ms => ms ? new Date(ms) : "";
+  const rows = [...regs].sort((a, b) => (a.registeredAt || 0) - (b.registeredAt || 0)).map(r => [r.code, r.name, r.phone, r.email || "", r.org || "", d(r.registeredAt), d(r.checkedInAt),
+    !r.checkedInAt ? "Not arrived" : r.dinner === "free" ? "On time" : "Late",
+    { free: "Free", due: "Due", paid: "Paid" }[r.dinner] || "—", r.dinner === "due" || r.dinner === "paid" ? +r.fee || 0 : 0, r.payMode || "", d(r.paidAt)]);
+  const ws = XLSX.utils.aoa_to_sheet([head, ...rows], { cellDates: true, dateNF: "dd-mmm-yyyy h:mm AM/PM" });
+  ws["!cols"] = [10, 24, 14, 26, 28, 20, 20, 12, 10, 11, 13, 20].map(w => ({ wch: w }));
+  ws["!autofilter"] = { ref: XLSX.utils.encode_range({ s: { r: 0, c: 0 }, e: { r: rows.length, c: head.length - 1 } }) };
+  const sum = (f) => regs.filter(f).reduce((s, r) => s + (+r.fee || 0), 0);
+  const ss = XLSX.utils.aoa_to_sheet([
+    ["Let's Talk GFC · Fri 13 Nov 2026 · Christos Mar Thoma Church, Kakkanad"], [],
+    ["Registered", regs.length], ["Checked in", regs.filter(r => r.checkedInAt).length], ["Not arrived", regs.filter(r => !r.checkedInAt).length],
+    ["Free dinner (on time)", regs.filter(r => r.dinner === "free").length], ["Late · fee due", regs.filter(r => r.dinner === "due").length], ["Late · paid", regs.filter(r => r.dinner === "paid").length],
+    ["Collected (₹)", sum(r => r.dinner === "paid")], ["Outstanding (₹)", sum(r => r.dinner === "due")], [],
+    ["Free dinner cutoff", cutLabel(cfg.cutoff)], ["Late fee (₹)", cfg.fee], ["Exported", new Date()]
+  ], { cellDates: true });
+  ss["!cols"] = [{ wch: 26 }, { wch: 22 }];
+  const wb = XLSX.utils.book_new(); XLSX.utils.book_append_sheet(wb, ws, "Attendees"); XLSX.utils.book_append_sheet(wb, ss, "Summary");
+  XLSX.writeFile(wb, `LetsTalkGFC-attendees-${new Date().toISOString().slice(0, 16).replace(/[:T]/g, "-")}.xlsx`);
+  Snd.coin(); toast("Excel file downloaded");
+});
+
+GFC.staffGate(pin => { PIN = pin; load(); setInterval(() => load(true), 15000); });
+})();
+</script>
+</body>
+</html>

@@ -1,0 +1,18 @@
+/*
+  X-Content-Type-Options: nosniff
+  Referrer-Policy: strict-origin-when-cross-origin
+  Permissions-Policy: camera=(self), microphone=(), geolocation=()
+
+/assets/*
+  Cache-Control: public, max-age=604800
+
+/config.js
+  Cache-Control: no-cache
+
+/gate-bayvwmtwla.html
+  X-Robots-Tag: noindex, nofollow
+  Cache-Control: no-cache
+
+/crew-vmieok6wz8.html
+  X-Robots-Tag: noindex, nofollow
+  Cache-Control: no-cache
