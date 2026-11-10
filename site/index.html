@@ -17,7 +17,7 @@
 <link rel="icon" href="assets/logo.png">
 <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Kanit:ital,wght@0,400;0,500;0,600;0,700;0,800;0,900;1,700;1,800;1,900&display=swap">
-<link rel="stylesheet" href="assets/gfc.css?v=3">
+<link rel="stylesheet" href="assets/gfc.css?v=5">
 <style>
 /* Website layout: sticky nav · hero (title + speaker) · event details · registration with live pass · memory game · footer. */
 :root{
@@ -186,6 +186,38 @@ label.lab .req{color:var(--lime)}
 
 /* vibe button */
 
+/* dinner prepay (UPI) */
+.prepay{margin-top:22px}
+.prepay .in{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,320px);gap:24px;padding:24px;align-items:start}
+@media (max-width:900px){.prepay .in{grid-template-columns:minmax(0,1fr)}}
+.ppInfo{display:flex;flex-direction:column;gap:12px;min-width:0}
+.ppInfo .k{font:700 14px var(--f-body);letter-spacing:.14em;color:var(--yellow)}
+.ppInfo h3{margin:0;font:italic 900 clamp(24px,3vw,32px)/1.05 var(--f-display);text-transform:uppercase}
+.ppInfo h3 em{font-style:inherit;color:var(--lime)}
+.ppInfo p{margin:0;color:var(--soft);font-size:16px;line-height:1.45}
+.ppStatus{display:flex;gap:12px;align-items:flex-start;padding:14px;border:2px solid #2E58B8;background:#0E2150}
+.ppStatus .dot{flex:none;width:12px;height:12px;border-radius:50%;margin-top:5px;background:#7F9BD0}
+.ppStatus b{display:block;font:800 17px var(--f-body);color:#fff}
+.ppStatus span{font-size:15px;color:var(--soft)}
+.ppStatus.claimed{border-color:var(--yellow)} .ppStatus.claimed .dot{background:var(--yellow)}
+.ppStatus.received{border-color:var(--lime)} .ppStatus.received .dot{background:var(--lime)}
+.ppStatus.rejected{border-color:#FF7272} .ppStatus.rejected .dot{background:#FF7272}
+.ppStatus .btn{margin-top:10px}
+#ppForm{display:flex;flex-direction:column;gap:8px}
+#ppForm .row{flex-wrap:nowrap}
+#ppForm .inp{flex:1;min-width:0;font-family:var(--f-body);letter-spacing:.06em}
+#ppForm small{color:var(--soft);font-size:14px}
+.ppPay{display:flex;flex-direction:column;align-items:center;gap:10px;text-align:center}
+.ppPay canvas{width:200px;max-width:100%;height:auto;image-rendering:pixelated;border:4px solid #fff}
+.ppPay .cap{font:600 15px var(--f-body);color:#fff}
+.ppPay .btn,.ppPay .btn .in{width:100%}
+.ppApps{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px;width:100%}
+.ppApps a{padding:10px 6px;background:#0E2150;border:2px solid #2E58B8;color:#fff;text-decoration:none;font:700 14px var(--f-body)}
+.ppApps a:hover{border-color:var(--lime)}
+.ppPay small{font-size:13px;color:var(--soft);word-break:break-all}
+@media (pointer:coarse){.ppPay canvas{width:160px;order:3}.ppPay .cap{order:4}.ppPay small{order:5}}
+@media (max-width:560px){.prepay .in{padding:18px}.ppPay{order:-1}#ppForm .row{flex-wrap:wrap}#ppForm .row .btn,#ppForm .row .btn .in{width:100%}}
+
 /* phone: burger menu (Register + Vibe) replaces the separate buttons */
 .burger,.bmenu{display:none}
 @media (max-width:560px){
@@ -293,7 +325,7 @@ footer .fbtn.wa:hover .in{--b:#5BE38D}
 footer .copy{grid-column:1/-1;border-top:1px solid #1d3770;padding-top:12px;font-size:13px;color:#8FA8D6;text-align:center}
 @media (max-width:820px){footer .container{grid-template-columns:minmax(0,1fr)}footer .ev,footer .contact{text-align:left;align-items:flex-start}}
 </style>
-<script src="config.js?v=4"></script>
+<script src="config.js?v=5"></script>
 </head>
 <body>
 <noscript><p style="position:relative;z-index:5;margin:0;padding:12px 16px;background:#0B1838;color:#fff;font:16px sans-serif">Please turn on JavaScript to register for Let's Talk GFC.</p></noscript>
@@ -420,6 +452,27 @@ footer .copy{grid-column:1/-1;border-top:1px solid #1d3770;padding-top:12px;font
         </div>
       </div>
     </div>
+    <div class="px yellow prepay" id="prepay" hidden><div class="in">
+      <div class="ppInfo">
+        <span class="k">OPTIONAL · DINNER PREPAY</span>
+        <h3>Running late? Prepay dinner <em>₹<span class="ppAmt">100</span></em></h3>
+        <p>Dinner is free if you arrive by <b class="ppBy">5:45 PM</b>. If you might come later, pay now by UPI and walk straight in. No queue at the gate.</p>
+        <div class="ppStatus" id="ppStatus" aria-live="polite"></div>
+        <form id="ppForm" novalidate>
+          <label class="lab" for="utr">After paying, enter the UPI transaction ID (UTR)</label>
+          <div class="row"><input class="inp" id="utr" inputmode="numeric" autocomplete="off" placeholder="e.g. 431298765432" maxlength="35"><button class="btn px" type="submit" id="ppBtn"><span class="in">I've paid</span></button></div>
+          <p class="err" id="ppErr" role="alert"></p>
+          <small>Find it in your UPI app under the payment's details. It's usually 12 digits. We check it against our bank before confirming.</small>
+        </form>
+      </div>
+      <div class="ppPay" id="ppPay">
+        <canvas id="ppQR" aria-label="UPI QR code to pay"></canvas>
+        <span class="cap">Scan with any UPI app</span>
+        <a class="btn px" id="ppLink" href="#"><span class="in"><span>Pay ₹<span class="ppAmt">100</span> with UPI app</span></span></a>
+        <div class="ppApps"><a id="ppGpay" href="#">GPay</a><a id="ppPhonepe" href="#">PhonePe</a><a id="ppPaytm" href="#">Paytm</a></div>
+        <small>Paying to <b id="ppVpa"></b></small>
+      </div>
+    </div></div>
   </div>
 </section>
 
@@ -481,10 +534,10 @@ footer .copy{grid-column:1/-1;border-top:1px solid #1d3770;padding-top:12px;font
 </div>
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcode-generator/1.4.4/qrcode.min.js"></script>
-<script src="assets/ambient.js?v=3"></script>
-<script src="assets/gfc.js?v=3"></script>
-<script src="assets/pass.js?v=3"></script>
-<script src="assets/games.js?v=3"></script>
+<script src="assets/ambient.js?v=5"></script>
+<script src="assets/gfc.js?v=5"></script>
+<script src="assets/pass.js?v=5"></script>
+<script src="assets/games.js?v=5"></script>
 <script>
 (() => {
 const { $, $$, api, FX, CFG, store, toast, saveBlob } = GFC;
@@ -596,11 +649,51 @@ function preview() { clearTimeout(drawT); drawT = setTimeout(() => { if (!curren
 $("#name").addEventListener("input", preview);
 function saveMine() { if (current) store.set("gfc-my-pass", { code: current.code, name: current.name, phone: current.phone }); }
 
+/* ---------- dinner prepay (UPI, verified by staff) ---------- */
+const UPI = CFG.upi || {}, PP_AMT = Number(UPI.amount || CFG.lateFee || 100);
+$$(".ppAmt").forEach(e => e.textContent = PP_AMT); $(".ppBy").textContent = CFG.arriveBy;
+function renderPrepay() {
+  const box = $("#prepay");
+  if (!current || !UPI.vpa) { box.hidden = true; return; }
+  box.hidden = false;
+  const st = current.prepay || "none", pay = st === "none" || st === "rejected";
+  const msg = {
+    none: ["Not paid", "Optional. Only if you might arrive after " + CFG.arriveBy + "."],
+    claimed: ["Payment submitted · checking", `UTR ${GFC.esc(current.utr || "")} received. We'll confirm it after checking our bank. It shows Received here once confirmed.`],
+    received: ["Dinner prepaid ✓", "All set. Just show your pass at the entry."],
+    rejected: ["We couldn't find that payment", "Check the transaction ID and submit again, or contact the Yuvajana Sakhyam Secretary: +91 79091 91060."]
+  }[st] || ["", ""];
+  const ps = $("#ppStatus"); ps.className = "ppStatus " + st;
+  ps.innerHTML = `<i class="dot" aria-hidden="true"></i><div><b>${msg[0]}</b><span>${msg[1]}</span>${st === "claimed" ? '<div><button class="btn ghost px small" type="button" id="ppRefresh"><span class="in">↻ Check status</span></button></div>' : ""}</div>`;
+  $("#ppForm").hidden = !pay; $("#ppPay").hidden = !pay;
+  if (pay) {
+    const link = GFC.upiLink(current.code, PP_AMT), qs = link.slice("upi://pay?".length);
+    $("#ppLink").href = link; $("#ppGpay").href = "tez://upi/pay?" + qs; $("#ppPhonepe").href = "phonepe://pay?" + qs; $("#ppPaytm").href = "paytmmp://pay?" + qs;
+    $("#ppVpa").textContent = UPI.vpa; GFC.drawQR($("#ppQR"), link, 240);
+  }
+  const rb = $("#ppRefresh"); if (rb) rb.onclick = refreshPrepay;
+}
+async function refreshPrepay() {
+  if (!current || !UPI.vpa) return;
+  try { const r = await api("findPass", { name: current.name, phone: current.phone }); Object.assign(current, { prepay: r.pass.prepay, utr: r.pass.utr }); renderPrepay(); }
+  catch (e) { /* offline or not found: keep what we have */ }
+}
+$("#ppForm").addEventListener("submit", async ev => {
+  ev.preventDefault();
+  const err = $("#ppErr"), btn = $("#ppBtn"); err.textContent = ""; btn.disabled = true;
+  try {
+    const r = await api("claimPrepay", { code: current.code, phone: current.phone, utr: $("#utr").value });
+    Object.assign(current, { prepay: r.pass.prepay, utr: r.pass.utr }); $("#utr").value = ""; renderPrepay(); toast("Payment submitted. We'll confirm it soon.");
+  } catch (e) { err.textContent = e.message; }
+  finally { btn.disabled = false; }
+});
+
 function showPass(p, note) {
   current = p; saveMine();
   paint({ name: p.name, code: p.code });
   $("#passSt").textContent = note;
   $("#passBtns").hidden = false;
+  renderPrepay(); if (p.prepay === undefined) refreshPrepay();
   const col = $("#passCol"); col.classList.remove("ready"); void col.offsetWidth; col.classList.add("ready");
 }
 $("#dl").addEventListener("click", async () => {
@@ -609,7 +702,7 @@ $("#dl").addEventListener("click", async () => {
   saveBlob(b, `${current.code}-LetsTalkGFC-pass.png`); toast("Pass downloaded. Show the QR at the entry.");
 });
 $("#other").addEventListener("click", () => {
-  current = null; store.del("gfc-my-pass"); $("#reg").reset(); paint({ name: "" });
+  current = null; store.del("gfc-my-pass"); $("#reg").reset(); paint({ name: "" }); renderPrepay();
   $("#passSt").textContent = "Live preview: type your name to see your pass."; $("#passBtns").hidden = true; $("#name").focus();
 });
 

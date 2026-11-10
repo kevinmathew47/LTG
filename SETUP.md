@@ -61,6 +61,24 @@ GitHub Pages or any other static host works too.
 - The arrival time is the time of the scan, taken from the Google server in India time. The time on the volunteer's phone doesn't matter.
 - If someone is late, the scanner shows **"Collect ₹100"** with **Paid · Cash** and **Paid · UPI** buttons.
 
+## Dinner prepay by UPI (optional)
+
+People who might arrive after 5:45 PM can prepay the ₹100 dinner by UPI from their pass. The money goes straight to your UPI ID: no payment company, no commission. **UPI can't confirm payments to a website by itself, so you check each one yourself.**
+
+**Turn it on:**
+1. Update the backend: open your Apps Script, replace the code with the new `apps-script/Code.gs` (keep your own `STAFF_PIN` on line 10), click **Save**, then **Deploy → Manage deployments → ✏️ Edit → Version: New version → Deploy**. The web app link stays the same. The sheet gets four new columns automatically: Dinner Prepay, UPI Ref (UTR), Prepay Claimed At, Prepay Checked At.
+2. In `site/config.js`, put the UPI ID that should receive the money: `upi: { vpa: "yourname@okaxis", … }`. Push to GitHub; Vercel updates by itself.
+
+**How it works:**
+- After registering, the person sees **"Running late? Prepay dinner ₹100"** with **Pay with UPI app**, GPay / PhonePe / Paytm buttons and a QR code. The amount is locked to ₹100 and their pass code is in the payment note.
+- After paying they type the **UPI transaction ID (UTR)** shown in their UPI app. Their pass then says **"Payment submitted · checking"**.
+- In the admin panel, use the **Prepay to check** filter. Compare the UTR with your bank / UPI app, then tap **✓ Received** (or **✕ Reject**). Their pass then shows **Dinner prepaid ✓** (or asks them to retry).
+- At the gate, someone you marked Received who arrives after 5:45 PM is let through as **Dinner prepaid**. If you haven't checked their UTR yet, the scanner shows it with **✓ Prepay received / ✕ Not received** buttons.
+- The Excel export includes prepay status, UTR and times, plus totals on the Summary sheet.
+- Leave `vpa` empty to hide the whole option.
+
+**Practice mode:** add `?demo=1` to any page address (for example `/gate-bayvwmtwla.html?demo=1`) to try everything with fake data on that device only, with PIN `1234`. The live Google Sheet isn't touched. Handy for training volunteers.
+
 ## Good to know
 
 - **Same number twice:** if someone registers again with the same mobile number, they get their existing pass back.

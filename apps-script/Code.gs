@@ -11,9 +11,13 @@ const STAFF_PIN = 'CHANGE-ME';          // <-- set this before deploying
 const TZ = 'Asia/Kolkata';
 const SHEET = 'Registrations';
 const HEAD = ['Pass Code', 'Name', 'Mobile', 'Email', 'Parish / College / Workplace',
-  'Registered At', 'Checked In At', 'Arrival', 'Dinner', 'Fee (₹)', 'Payment Mode', 'Paid At'];
+  'Registered At', 'Checked In At', 'Arrival', 'Dinner', 'Fee (₹)', 'Payment Mode', 'Paid At',
+  'Dinner Prepay', 'UPI Ref (UTR)', 'Prepay Claimed At', 'Prepay Checked At'];
 // column numbers (1-based)
-const C = { code: 1, name: 2, phone: 3, email: 4, org: 5, reg: 6, inAt: 7, arrival: 8, dinner: 9, fee: 10, mode: 11, paidAt: 12 };
+const C = { code: 1, name: 2, phone: 3, email: 4, org: 5, reg: 6, inAt: 7, arrival: 8, dinner: 9, fee: 10, mode: 11, paidAt: 12,
+  prepay: 13, utr: 14, claimAt: 15, checkAt: 16 };
+const PREPAY = { Claimed: 'claimed', Received: 'received', Rejected: 'rejected' };
+const PREPAY_MODE = 'UPI prepaid';
 const ALPH = 'ACDEFHJKMNPRTUVWXY34679';
 
 /* ---------------- entry points ---------------- */
@@ -32,8 +36,8 @@ function doPost(e) {
   finally { lock.releaseLock(); }
 }
 
-const PUBLIC_ACTIONS = { info: a_info, register: a_register, findPass: a_findPass };
-const STAFF_ACTIONS = { verify: a_verify, list: a_list, checkin: a_checkin, walkin: a_walkin, pay: a_pay, undo: a_undo, remove: a_remove, settings: a_settings };
+const PUBLIC_ACTIONS = { info: a_info, register: a_register, findPass: a_findPass, claimPrepay: a_claimPrepay };
+const STAFF_ACTIONS = { verify: a_verify, list: a_list, checkin: a_checkin, walkin: a_walkin, pay: a_pay, prepay: a_prepay, undo: a_undo, remove: a_remove, settings: a_settings };
 
 function route_(b) {
   if (PUBLIC_ACTIONS[b.action]) return Object.assign({ ok: true }, PUBLIC_ACTIONS[b.action](b));
@@ -52,13 +56,17 @@ function a_register(b) {
   const v = validate_(b);
   const sh = sheet_(), rows = rows_(sh);
   const hit = rows.find(r => r.rec.phone === v.phone);
-  if (hit) return { existing: true, pass: hit.rec };
+  if (hit) {
+    const sameName = hit.rec.name.toLowerCase().split(/\s+/)[0] === v.name.toLowerCase().split(/\s+/)[0];
+    if (!sameName && !b.staff) throw new Error('This mobile number is already registered. Use "Already registered? Get my pass again" below.');
+    return { existing: true, pass: b.staff ? hit.rec : publicPass_(hit.rec) };
+  }
   const codes = new Set(rows.map(r => r.rec.code));
   let code;
   do { code = 'GFC-' + Array.from({ length: 4 }, () => ALPH[Math.floor(Math.random() * ALPH.length)]).join(''); } while (codes.has(code));
   const now = new Date();
-  sh.appendRow([code, safe_(v.name), "'" + v.phone, safe_(v.email), safe_(v.org), now, '', '', '', 0, '', '']);
-  return { pass: { code: code, name: v.name, phone: v.phone, email: v.email, org: v.org, registeredAt: now.getTime(), checkedInAt: null, dinner: 'wait', fee: 0, payMode: '', paidAt: null } };
+  sh.appendRow([code, safe_(v.name), "'" + v.phone, safe_(v.email), safe_(v.org), now, '', '', '', 0, '', '', '', '', '', '']);
+  return { pass: { code: code, name: v.name, phone: v.phone, email: v.email, org: v.org, registeredAt: now.getTime(), checkedInAt: null, dinner: 'wait', fee: 0, payMode: '', paidAt: null, prepay: 'none', utr: '', prepayAt: null } };
 }
 
 function a_findPass(b) {
@@ -66,7 +74,20 @@ function a_findPass(b) {
   if (phone.length !== 10 || !first) throw new Error('Enter the mobile number and first name you registered with.');
   const hit = rows_(sheet_()).find(r => r.rec.phone === phone && r.rec.name.toLowerCase().split(/\s+/)[0] === first);
   if (!hit) throw new Error('No pass matches that name and number. Check the spelling or register again.');
-  return { pass: { code: hit.rec.code, name: hit.rec.name, phone: hit.rec.phone, checkedInAt: hit.rec.checkedInAt, dinner: hit.rec.dinner, fee: hit.rec.fee } };
+  return { pass: publicPass_(hit.rec) };
+}
+
+/** Visitor says they paid the dinner prepay by UPI and gives the transaction ID (UTR). */
+function a_claimPrepay(b) {
+  const sh = sheet_(), hit = find_(sh, b.code);
+  if (!hit || hit.rec.phone !== normPhone_(b.phone)) throw new Error('Pass not found. Open your pass again and retry.');
+  if (hit.rec.prepay === 'received') return { pass: publicPass_(hit.rec) };
+  const utr = String(b.utr || '').replace(/\s+/g, '').toUpperCase();
+  if (!/^[A-Z0-9]{10,35}$/.test(utr)) throw new Error('Enter the UPI transaction ID (UTR) from your payment app, usually 12 digits.');
+  const dup = rows_(sh).find(r => r.rec.utr === utr && r.rec.code !== hit.rec.code);
+  if (dup) throw new Error('That transaction ID is already used for another pass.');
+  sh.getRange(hit.row, C.prepay, 1, 4).setValues([['Claimed', "'" + utr, new Date(), '']]);
+  return { pass: publicPass_(find_(sh, hit.rec.code).rec) };
 }
 
 /* ---------------- staff ---------------- */
@@ -81,7 +102,7 @@ function a_checkin(b) {
 }
 
 function a_walkin(b) {
-  const res = a_register(b);
+  const res = a_register(Object.assign({}, b, { staff: true }));
   const sh = sheet_(), hit = find_(sh, res.pass.code);
   if (hit.rec.checkedInAt) return { status: 'already', rec: hit.rec, existing: true };
   return { status: 'ok', rec: checkin_(sh, hit), existing: !!res.existing };
@@ -94,6 +115,27 @@ function a_pay(b) {
   const mode = b.mode === 'UPI' ? 'UPI' : 'Cash', now = new Date();
   sh.getRange(hit.row, C.dinner).setValue('Paid');
   sh.getRange(hit.row, C.mode, 1, 2).setValues([[mode, now]]);
+  return { rec: find_(sh, b.code).rec };
+}
+
+/** Staff confirm (Received), reject (Rejected) or clear ('') a dinner prepay. */
+function a_prepay(b) {
+  const sh = sheet_(), hit = find_(sh, b.code);
+  if (!hit) throw new Error('Pass not found.');
+  const status = { Received: 'Received', Rejected: 'Rejected' }[b.status] || '';
+  const now = new Date();
+  sh.getRange(hit.row, C.prepay).setValue(status);
+  sh.getRange(hit.row, C.checkAt).setValue(status ? now : '');
+  if (!status) sh.getRange(hit.row, C.utr, 1, 2).setValues([['', '']]);
+  const rec = find_(sh, b.code).rec;
+  if (status === 'Received' && rec.dinner === 'due') {
+    sh.getRange(hit.row, C.dinner).setValue('Paid');
+    sh.getRange(hit.row, C.mode, 1, 2).setValues([[PREPAY_MODE, now]]);
+  }
+  if (status !== 'Received' && rec.dinner === 'paid' && rec.payMode === PREPAY_MODE) {
+    sh.getRange(hit.row, C.dinner).setValue('Due');
+    sh.getRange(hit.row, C.mode, 1, 2).setValues([['', '']]);
+  }
   return { rec: find_(sh, b.code).rec };
 }
 
@@ -130,7 +172,11 @@ function checkin_(sh, hit) {
   const mins = Number(Utilities.formatDate(now, TZ, 'H')) * 60 + Number(Utilities.formatDate(now, TZ, 'm'));
   const parts = cfg.cutoff.split(':').map(Number), late = mins > parts[0] * 60 + parts[1];
   const fee = late ? cfg.fee : 0;
-  sh.getRange(hit.row, C.inAt, 1, 4).setValues([[now, late ? 'Late' : 'On time', late && fee > 0 ? 'Due' : 'Free', fee]]);
+  if (late && fee > 0 && hit.rec.prepay === 'received') {
+    sh.getRange(hit.row, C.inAt, 1, 6).setValues([[now, 'Late', 'Paid', fee, PREPAY_MODE, now]]);
+  } else {
+    sh.getRange(hit.row, C.inAt, 1, 4).setValues([[now, late ? 'Late' : 'On time', late && fee > 0 ? 'Due' : 'Free', fee]]);
+  }
   return find_(sh, hit.rec.code).rec;
 }
 
@@ -152,6 +198,11 @@ function sheet_() {
     sh.getRange('L:L').setNumberFormat('dd-mmm-yyyy h:mm am/pm');
     try { ss.setSpreadsheetTimeZone(TZ); } catch (e) {}
   }
+  if (sh.getRange(1, HEAD.length).getValue() !== HEAD[HEAD.length - 1]) {
+    sh.getRange(1, 1, 1, HEAD.length).setValues([HEAD]).setFontWeight('bold').setBackground('#081633').setFontColor('#D8FF1F');
+    sh.getRange('N:N').setNumberFormat('@');
+    sh.getRange('O:P').setNumberFormat('dd-mmm-yyyy h:mm am/pm');
+  }
   return sh;
 }
 
@@ -169,8 +220,14 @@ function rec_(v) {
   const d = { Free: 'free', Due: 'due', Paid: 'paid' }[String(v[C.dinner - 1])] || 'wait';
   return {
     code: String(v[0]), name: String(v[1]), phone: normPhone_(v[2]), email: String(v[3] || ''), org: String(v[4] || ''),
-    registeredAt: ms(v[5]), checkedInAt: ms(v[6]), dinner: d, fee: Number(v[9]) || 0, payMode: String(v[10] || ''), paidAt: ms(v[11])
+    registeredAt: ms(v[5]), checkedInAt: ms(v[6]), dinner: d, fee: Number(v[9]) || 0, payMode: String(v[10] || ''), paidAt: ms(v[11]),
+    prepay: PREPAY[String(v[12])] || 'none', utr: String(v[13] || '').toUpperCase(), prepayAt: ms(v[14]), prepayCheckedAt: ms(v[15])
   };
+}
+/** What a visitor may see about their own pass. */
+function publicPass_(r) {
+  return { code: r.code, name: r.name, phone: r.phone, checkedInAt: r.checkedInAt, dinner: r.dinner, fee: r.fee,
+    prepay: r.prepay, utr: r.utr ? '••••' + r.utr.slice(-4) : '', prepayAt: r.prepayAt };
 }
 function validate_(b) {
   const name = String(b.name || '').trim().replace(/\s+/g, ' ');

@@ -4,6 +4,8 @@
 const CFG = Object.assign({
   apiUrl: "", eventStart: "2026-11-13T18:00:00+05:30", arriveBy: "5:45 PM", lateFee: 100, demoPin: "1234"
 }, window.GFC_CONFIG || {});
+// ?demo=1 = practice mode: everything stays on this device, live Google Sheet untouched (volunteer training / testing)
+if (/[?&]demo=1\b/.test(location.search)) CFG.apiUrl = "";
 const $ = (s, r = document) => r.querySelector(s);
 const $$ = (s, r = document) => [...r.querySelectorAll(s)];
 const esc = s => String(s ?? "").replace(/[&<>"']/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
@@ -32,28 +34,56 @@ const Local = (() => {
     if (email && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) throw new Error("That email doesn’t look right. Fix it or leave it blank.");
     return { name, phone, email, org };
   }
-  function checkin(d, r) { const now = Date.now(), late = mins(now) > cut(d.cfg.cutoff), fee = late ? Number(d.cfg.fee) || 0 : 0; Object.assign(r, { checkedInAt: now, fee, dinner: late && fee > 0 ? "due" : "free" }); }
+  const PREPAY_MODE = "UPI prepaid";
+  function checkin(d, r) {
+    const now = Date.now(), late = mins(now) > cut(d.cfg.cutoff), fee = late ? Number(d.cfg.fee) || 0 : 0;
+    if (late && fee > 0 && r.prepay === "received") Object.assign(r, { checkedInAt: now, fee, dinner: "paid", payMode: PREPAY_MODE, paidAt: now });
+    else Object.assign(r, { checkedInAt: now, fee, dinner: late && fee > 0 ? "due" : "free" });
+  }
+  const pub = r => ({ code: r.code, name: r.name, phone: r.phone, checkedInAt: r.checkedInAt, dinner: r.dinner, fee: r.fee, prepay: r.prepay || "none", utr: r.utr ? "••••" + r.utr.slice(-4) : "", prepayAt: r.prepayAt || null });
   const find = (d, c) => d.regs.find(r => r.code === String(c || "").toUpperCase().trim());
   const A = {
     info() { const d = load(); return Object.assign({ count: d.regs.length }, d.cfg); },
     register(b) {
       const d = load(), v = validate(b), ex = d.regs.find(r => r.phone === v.phone);
-      if (ex) return { existing: true, pass: ex };
+      if (ex) {
+        const same = ex.name.toLowerCase().split(/\s+/)[0] === v.name.toLowerCase().split(/\s+/)[0];
+        if (!same && !b.staff) throw new Error('This mobile number is already registered. Use "Already registered? Get my pass again" below.');
+        return { existing: true, pass: b.staff ? ex : pub(ex) };
+      }
       let code; do { code = "GFC-" + Array.from({ length: 4 }, () => ALPH[Math.floor(Math.random() * ALPH.length)]).join(""); } while (find(d, code));
-      const r = Object.assign({ code }, v, { registeredAt: Date.now(), checkedInAt: null, dinner: "wait", fee: 0, payMode: "", paidAt: null });
-      d.regs.push(r); save(d); return { pass: r };
+      const r = Object.assign({ code }, v, { registeredAt: Date.now(), checkedInAt: null, dinner: "wait", fee: 0, payMode: "", paidAt: null, prepay: "none", utr: "", prepayAt: null, prepayCheckedAt: null });
+      d.regs.push(r); save(d); return { pass: pub(r) };
     },
     findPass(b) {
       const phone = normPhone(b.phone), first = String(b.name || "").trim().split(/\s+/)[0].toLowerCase();
       if (phone.length !== 10 || !first) throw new Error("Enter the mobile number and first name you registered with.");
       const r = load().regs.find(r => r.phone === phone && r.name.toLowerCase().split(/\s+/)[0] === first);
       if (!r) throw new Error("No pass matches that name and number. Check the spelling or register again.");
-      return { pass: r };
+      return { pass: pub(r) };
+    },
+    claimPrepay(b) {
+      const d = load(), r = find(d, b.code);
+      if (!r || r.phone !== normPhone(b.phone)) throw new Error("Pass not found. Open your pass again and retry.");
+      if (r.prepay === "received") return { pass: pub(r) };
+      const utr = String(b.utr || "").replace(/\s+/g, "").toUpperCase();
+      if (!/^[A-Z0-9]{10,35}$/.test(utr)) throw new Error("Enter the UPI transaction ID (UTR) from your payment app, usually 12 digits.");
+      if (d.regs.some(x => x.utr === utr && x.code !== r.code)) throw new Error("That transaction ID is already used for another pass.");
+      Object.assign(r, { prepay: "claimed", utr, prepayAt: Date.now(), prepayCheckedAt: null }); save(d); return { pass: pub(r) };
+    },
+    prepay(b) {
+      const d = load(), r = find(d, b.code); if (!r) throw new Error("Pass not found.");
+      const st = { Received: "received", Rejected: "rejected" }[b.status] || "none";
+      Object.assign(r, { prepay: st, prepayCheckedAt: st === "none" ? null : Date.now() });
+      if (st === "none") Object.assign(r, { utr: "", prepayAt: null });
+      if (st === "received" && r.dinner === "due") Object.assign(r, { dinner: "paid", payMode: PREPAY_MODE, paidAt: Date.now() });
+      if (st !== "received" && r.dinner === "paid" && r.payMode === PREPAY_MODE) Object.assign(r, { dinner: "due", payMode: "", paidAt: null });
+      save(d); return { rec: r };
     },
     verify() { return load().cfg; },
     list() { const d = load(); return { regs: d.regs, cfg: d.cfg }; },
     checkin(b) { const d = load(), r = find(d, b.code); if (!r) return { status: "notfound" }; if (r.checkedInAt) return { status: "already", rec: r }; checkin(d, r); save(d); return { status: "ok", rec: r }; },
-    walkin(b) { const res = A.register(b), d = load(), r = find(d, res.pass.code); if (r.checkedInAt) return { status: "already", rec: r, existing: true }; checkin(d, r); save(d); return { status: "ok", rec: r, existing: !!res.existing }; },
+    walkin(b) { const res = A.register(Object.assign({}, b, { staff: true })), d = load(), r = find(d, res.pass.code); if (r.checkedInAt) return { status: "already", rec: r, existing: true }; checkin(d, r); save(d); return { status: "ok", rec: r, existing: !!res.existing }; },
     pay(b) { const d = load(), r = find(d, b.code); if (!r) throw new Error("Pass not found."); if (r.dinner === "due") Object.assign(r, { dinner: "paid", payMode: b.mode === "UPI" ? "UPI" : "Cash", paidAt: Date.now() }); save(d); return { rec: r }; },
     undo(b) { const d = load(), r = find(d, b.code); if (!r) throw new Error("Pass not found."); Object.assign(r, { checkedInAt: null, dinner: "wait", fee: 0, payMode: "", paidAt: null }); save(d); return { rec: r }; },
     remove(b) { const d = load(); d.regs = d.regs.filter(r => r.code !== b.code); save(d); return {}; },
@@ -64,7 +94,7 @@ const Local = (() => {
       save(d); return { cfg: d.cfg };
     }
   };
-  const STAFF = ["verify", "list", "checkin", "walkin", "pay", "undo", "remove", "settings"];
+  const STAFF = ["verify", "list", "checkin", "walkin", "pay", "prepay", "undo", "remove", "settings"];
   return {
     call(action, b) {
       return new Promise((res, rej) => setTimeout(() => {
@@ -77,6 +107,13 @@ const Local = (() => {
     }
   };
 })();
+
+/* UPI payment link (NPCI format). Amount is fixed; the pass code goes in the note and reference. */
+function upiLink(code, amount) {
+  const u = CFG.upi || {}; if (!u.vpa) return "";
+  const q = new URLSearchParams({ pa: u.vpa, pn: u.name || "Let's Talk GFC", am: Number(amount).toFixed(2), cu: "INR", tn: `${code} dinner prepay`, tr: code });
+  return "upi://pay?" + q.toString().replace(/\+/g, "%20");
+}
 
 async function api(action, data = {}) {
   if (!CFG.apiUrl) return Local.call(action, data);
@@ -279,5 +316,5 @@ function demoBanner(where) {
   where.insertAdjacentHTML("afterbegin", `<div class="px yellow demo" style="margin-bottom:14px"><div class="in">DEMO MODE — no server connected yet, so entries stay on this device. Add the Apps Script URL to config.js to go live (see SETUP.md).</div></div>`);
 }
 
-window.GFC = { CFG, $, $$, esc, store, api, Snd, FX, initSky, drawQR, ticketBlob, saveBlob, toast, staffGate, demoBanner, fmtT, fmtDT, cutLabel, normPhone, reduced };
+window.GFC = { upiLink, CFG, $, $$, esc, store, api, Snd, FX, initSky, drawQR, ticketBlob, saveBlob, toast, staffGate, demoBanner, fmtT, fmtDT, cutLabel, normPhone, reduced };
 })();

@@ -11,5 +11,10 @@ window.GFC_CONFIG = {
 
   // "Vibe" background music: slowed instrumental of Coastline (Hollow Coves), vocals removed.
   // Swap `file` for any MP3 in the site folder. volume: 0 (silent) to 1 (full).
-  music: { file: "assets/audio/coastline-slowed-instrumental.mp3", volume: 0.45 }
+  music: { file: "assets/audio/coastline-slowed-instrumental.mp3", volume: 0.45 },
+
+  // Dinner prepay by UPI. Put the UPI ID that should receive the money in `vpa`
+  // (for example "yourname@okaxis"). Leave it empty to hide the prepay option.
+  // You confirm each payment in the admin panel after checking your bank app.
+  upi: { vpa: "", name: "Christos Mar Thoma Church Yuvajana Sakhyam", amount: 100 }
 };

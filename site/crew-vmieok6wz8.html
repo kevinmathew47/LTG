@@ -12,20 +12,23 @@
 <link rel="stylesheet" href="assets/gfc.css">
 <style>
 .stack{display:flex;flex-direction:column;gap:18px;padding-bottom:40px}
-.stats{display:grid;grid-template-columns:repeat(6,minmax(0,1fr));gap:12px}
+.stats{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px}
 @media (max-width:900px){.stats{grid-template-columns:repeat(3,minmax(0,1fr))}}
 @media (max-width:520px){.stats{grid-template-columns:repeat(2,minmax(0,1fr))}}
 .stat .in{padding:12px 14px}
 .stat .n{font:italic 900 clamp(26px,4vw,38px)/1 var(--f-display);font-variant-numeric:tabular-nums}
 .stat .l{font-family:var(--f-pixel);font-size:14px;color:var(--ink-dim)}
 .stat.free .n{color:var(--lime)} .stat.due .n{color:var(--yellow)} .stat.cash .n{color:var(--cyan)}
+.stat.check .n{color:var(--amber)}
+.b-check{background:var(--amber);color:var(--navy)} .b-ok{background:var(--lime);color:var(--navy)} .b-no{background:#FF7272;color:var(--navy)}
+.utr{display:block;font:600 13px ui-monospace,Consolas,monospace;color:var(--ink-dim);margin-top:4px;letter-spacing:.04em}
 .toolbar{display:flex;gap:10px;flex-wrap:wrap;align-items:center}
 .toolbar .inp{flex:1 1 220px;width:auto}
 .chips{display:flex;gap:6px;flex-wrap:wrap}
 .chip{font:500 14px var(--f-pixel);background:var(--panel);color:var(--white);border:2px solid var(--line);padding:6px 10px;cursor:pointer}
 .chip[aria-pressed="true"]{background:var(--cyan);color:var(--navy);border-color:var(--cyan)}
 .tablewrap{overflow-x:auto;margin-top:14px}
-table{width:100%;border-collapse:collapse;min-width:820px;font-size:15px}
+table{width:100%;border-collapse:collapse;min-width:980px;font-size:15px}
 th{font:500 14px var(--f-pixel);color:var(--cyan);text-align:left;padding:8px 10px;border-bottom:2px solid var(--cyan);white-space:nowrap}
 td{padding:9px 10px;border-bottom:1px solid #1d3770;vertical-align:middle}
 td.num{font-variant-numeric:tabular-nums;white-space:nowrap}
@@ -38,7 +41,7 @@ tr:hover td{background:rgba(63,220,255,.05)}
 .links{display:flex;gap:14px;flex-wrap:wrap;font-family:var(--f-pixel)}
 .links code{background:var(--panel);padding:4px 8px;color:var(--lime);word-break:break-all}
 </style>
-<script src="config.js?v=4"></script>
+<script src="config.js?v=5"></script>
 </head>
 <body>
 <canvas id="sky" aria-hidden="true"></canvas>
@@ -70,11 +73,13 @@ tr:hover td{background:rgba(63,220,255,.05)}
           <button class="chip" data-f="free" aria-pressed="false">Free dinner</button>
           <button class="chip" data-f="due" aria-pressed="false">₹ due</button>
           <button class="chip" data-f="paid" aria-pressed="false">Paid</button>
+          <button class="chip" data-f="pp-claimed" aria-pressed="false">Prepay to check</button>
+          <button class="chip" data-f="pp-received" aria-pressed="false">Prepaid</button>
         </div>
       </div>
       <div class="tablewrap"><table>
-        <thead><tr><th>Code</th><th>Name</th><th>Mobile</th><th>Registered</th><th>Arrived</th><th>Dinner</th><th style="text-align:right">Actions</th></tr></thead>
-        <tbody id="tb"><tr class="empty"><td colspan="7">Loading…</td></tr></tbody>
+        <thead><tr><th>Code</th><th>Name</th><th>Mobile</th><th>Registered</th><th>Arrived</th><th>Dinner</th><th>Prepay (UPI)</th><th style="text-align:right">Actions</th></tr></thead>
+        <tbody id="tb"><tr class="empty"><td colspan="8">Loading…</td></tr></tbody>
       </table></div>
     </div></div>
 
@@ -98,7 +103,7 @@ tr:hover td{background:rgba(63,220,255,.05)}
 </div>
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
-<script src="assets/gfc.js"></script>
+<script src="assets/gfc.js?v=5"></script>
 <script>
 (() => {
 const { $, $$, esc, api, Snd, toast, fmtT, fmtDT, cutLabel, CFG } = GFC;
@@ -114,28 +119,36 @@ async function load(quiet) {
   catch (e) { if (e.auth === false) { sessionStorage.removeItem("gfc-pin"); location.reload(); } else if (!quiet) toast(e.message, "red"); }
 }
 const badge = r => r.dinner === "free" ? `<span class="badge b-free">FREE</span>` : r.dinner === "due" ? `<span class="badge b-due">₹${r.fee} DUE</span>` : r.dinner === "paid" ? `<span class="badge b-paid">₹${r.fee} PAID · ${esc(r.payMode)}</span>` : `<span class="badge b-wait">NOT ARRIVED</span>`;
+const PP_AMT = Number((CFG.upi || {}).amount || CFG.lateFee || 100);
+const ppBadge = r => ({
+  claimed: `<span class="badge b-check">TO CHECK</span>`, received: `<span class="badge b-ok">RECEIVED ✓</span>`, rejected: `<span class="badge b-no">REJECTED</span>`
+}[r.prepay] || `<span class="dim">—</span>`) + (r.utr ? `<span class="utr" title="UPI transaction ID">UTR ${esc(r.utr)}</span>` : "");
 function render() {
   const inn = regs.filter(r => r.checkedInAt).length, free = regs.filter(r => r.dinner === "free").length, due = regs.filter(r => r.dinner === "due");
   const paid = regs.filter(r => r.dinner === "paid").reduce((s, r) => s + (+r.fee || 0), 0);
-  $("#stats").innerHTML = [["", "Registered", regs.length], ["", "Checked in", inn], ["", "Not arrived", regs.length - inn], ["free", "Free dinner", free], ["due", "₹ still due", due.length], ["cash", "Collected", "₹" + paid.toLocaleString("en-IN")]]
+  const ppCheck = regs.filter(r => r.prepay === "claimed").length, ppOk = regs.filter(r => r.prepay === "received").length;
+  $("#stats").innerHTML = [["", "Registered", regs.length], ["", "Checked in", inn], ["", "Not arrived", regs.length - inn], ["free", "Free dinner", free], ["due", "₹ still due", due.length], ["cash", "Collected at gate", "₹" + regs.filter(r => r.dinner === "paid" && r.payMode !== "UPI prepaid").reduce((s, r) => s + (+r.fee || 0), 0).toLocaleString("en-IN")], ["check", "Prepay to check", ppCheck], ["free", "Prepaid (UPI)", ppOk + " · ₹" + (ppOk * PP_AMT).toLocaleString("en-IN")]]
     .map(([c, l, n]) => `<div class="px cyan stat ${c}"><div class="in"><div class="n">${n}</div><div class="l">${l}</div></div></div>`).join("");
   if (document.activeElement !== $("#cut")) $("#cut").value = cfg.cutoff;
   if (document.activeElement !== $("#fee")) $("#fee").value = cfg.fee;
   const q = $("#q").value.trim().toLowerCase();
   const rows = [...regs].sort((a, b) => (b.registeredAt || 0) - (a.registeredAt || 0))
-    .filter(r => (filter === "all" || r.dinner === filter) && (!q || [r.name, r.phone, r.code, r.org, r.email].join(" ").toLowerCase().includes(q)));
+    .filter(r => (filter === "all" || (filter.startsWith("pp-") ? r.prepay === filter.slice(3) : r.dinner === filter)) && (!q || [r.name, r.phone, r.code, r.org, r.email, r.utr].join(" ").toLowerCase().includes(q)));
   $("#tb").innerHTML = rows.length ? rows.map(r => `<tr>
     <td class="code">${esc(r.code)}</td>
     <td><b>${esc(r.name)}</b>${r.org ? `<br><small class="dim">${esc(r.org)}</small>` : ""}</td>
     <td class="num">${esc(r.phone)}</td><td class="num">${fmtDT(r.registeredAt)}</td><td class="num">${r.checkedInAt ? fmtT(r.checkedInAt) : "—"}</td>
     <td>${badge(r)}</td>
+    <td>${ppBadge(r)}</td>
     <td><div class="acts">
+      ${r.prepay === "claimed" ? `<button class="btn px small" data-a="ppok" data-c="${esc(r.code)}" type="button"><span class="in">✓ Received</span></button><button class="btn danger px small" data-a="ppno" data-c="${esc(r.code)}" type="button"><span class="in">✕ Reject</span></button>` : ""}
+      ${r.prepay === "received" || r.prepay === "rejected" ? `<button class="btn ghost px small" data-a="ppclear" data-c="${esc(r.code)}" type="button" title="Clear the prepay status"><span class="in">↺ Prepay</span></button>` : ""}
       ${!r.checkedInAt ? `<button class="btn px small" data-a="checkin" data-c="${esc(r.code)}" type="button"><span class="in">Check in</span></button>` : ""}
       ${r.dinner === "due" ? `<button class="btn px small" data-a="Cash" data-c="${esc(r.code)}" type="button"><span class="in">Cash</span></button><button class="btn px small" data-a="UPI" data-c="${esc(r.code)}" type="button"><span class="in">UPI</span></button>` : ""}
       ${r.checkedInAt ? `<button class="btn ghost px small" data-a="undo" data-c="${esc(r.code)}" type="button"><span class="in">Undo</span></button>` : ""}
       <button class="btn danger px small" data-a="remove" data-c="${esc(r.code)}" type="button"><span class="in">Delete</span></button>
     </div></td></tr>`).join("")
-    : `<tr class="empty"><td colspan="7">${regs.length ? "No one matches this filter." : "No registrations yet. Share the public page to get players in."}</td></tr>`;
+    : `<tr class="empty"><td colspan="8">${regs.length ? "No one matches this filter." : "No registrations yet. Share the public page to get players in."}</td></tr>`;
 }
 $("#q").addEventListener("input", render);
 $("#chips").addEventListener("click", e => { const b = e.target.closest(".chip"); if (!b) return; filter = b.dataset.f; $$("#chips .chip").forEach(c => c.setAttribute("aria-pressed", String(c === b))); render(); });
@@ -151,6 +164,9 @@ $("#tb").addEventListener("click", async e => {
   try {
     if (a === "checkin") { const r = await api("checkin", { pin: PIN, code }); toast(r.rec && r.rec.dinner === "due" ? `${r.rec.name} checked in · ₹${r.rec.fee} due` : `${r.rec ? r.rec.name : code} checked in`); }
     else if (a === "Cash" || a === "UPI") { await api("pay", { pin: PIN, code, mode: a }); Snd.coin(); toast(`Payment recorded (${a})`); }
+    else if (a === "ppok") { await api("prepay", { pin: PIN, code, status: "Received" }); Snd.coin(); toast(`Prepay for ${code} marked received`); }
+    else if (a === "ppno") { await api("prepay", { pin: PIN, code, status: "Rejected" }); toast(`Prepay for ${code} rejected`); }
+    else if (a === "ppclear") { await api("prepay", { pin: PIN, code, status: "" }); toast(`Prepay for ${code} cleared`); }
     else if (a === "undo") { await api("undo", { pin: PIN, code }); toast("Check-in undone"); }
     else if (a === "remove") { await api("remove", { pin: PIN, code }); toast(`Deleted ${code}`); }
     await load();
@@ -166,13 +182,14 @@ $("#cfg").addEventListener("submit", async e => {
 $("#xls").addEventListener("click", async () => {
   await load(true);
   if (!regs.length) { toast("Nothing to export yet."); return; }
-  const head = ["Pass code", "Name", "Mobile", "Email", "Parish / College / Workplace", "Registered at", "Arrived at", "Arrival", "Dinner", "Amount (₹)", "Payment mode", "Paid at"];
+  const head = ["Pass code", "Name", "Mobile", "Email", "Parish / College / Workplace", "Registered at", "Arrived at", "Arrival", "Dinner", "Amount (₹)", "Payment mode", "Paid at", "Dinner prepay", "UPI ref (UTR)", "Prepay submitted at", "Prepay checked at"];
   const d = ms => ms ? new Date(ms) : "";
   const rows = [...regs].sort((a, b) => (a.registeredAt || 0) - (b.registeredAt || 0)).map(r => [r.code, r.name, r.phone, r.email || "", r.org || "", d(r.registeredAt), d(r.checkedInAt),
     !r.checkedInAt ? "Not arrived" : r.dinner === "free" ? "On time" : "Late",
-    { free: "Free", due: "Due", paid: "Paid" }[r.dinner] || "—", r.dinner === "due" || r.dinner === "paid" ? +r.fee || 0 : 0, r.payMode || "", d(r.paidAt)]);
+    { free: "Free", due: "Due", paid: "Paid" }[r.dinner] || "—", r.dinner === "due" || r.dinner === "paid" ? +r.fee || 0 : 0, r.payMode || "", d(r.paidAt),
+    { claimed: "To check", received: "Received", rejected: "Rejected" }[r.prepay] || "", r.utr || "", d(r.prepayAt), d(r.prepayCheckedAt)]);
   const ws = XLSX.utils.aoa_to_sheet([head, ...rows], { cellDates: true, dateNF: "dd-mmm-yyyy h:mm AM/PM" });
-  ws["!cols"] = [10, 24, 14, 26, 28, 20, 20, 12, 10, 11, 13, 20].map(w => ({ wch: w }));
+  ws["!cols"] = [10, 24, 14, 26, 28, 20, 20, 12, 10, 11, 13, 20, 14, 18, 20, 20].map(w => ({ wch: w }));
   ws["!autofilter"] = { ref: XLSX.utils.encode_range({ s: { r: 0, c: 0 }, e: { r: rows.length, c: head.length - 1 } }) };
   const sum = (f) => regs.filter(f).reduce((s, r) => s + (+r.fee || 0), 0);
   const ss = XLSX.utils.aoa_to_sheet([
@@ -180,6 +197,8 @@ $("#xls").addEventListener("click", async () => {
     ["Registered", regs.length], ["Checked in", regs.filter(r => r.checkedInAt).length], ["Not arrived", regs.filter(r => !r.checkedInAt).length],
     ["Free dinner (on time)", regs.filter(r => r.dinner === "free").length], ["Late · fee due", regs.filter(r => r.dinner === "due").length], ["Late · paid", regs.filter(r => r.dinner === "paid").length],
     ["Collected (₹)", sum(r => r.dinner === "paid")], ["Outstanding (₹)", sum(r => r.dinner === "due")], [],
+    ["Prepay · received", regs.filter(r => r.prepay === "received").length], ["Prepay · to check", regs.filter(r => r.prepay === "claimed").length], ["Prepay · rejected", regs.filter(r => r.prepay === "rejected").length],
+    ["Prepay received (₹)", regs.filter(r => r.prepay === "received").length * PP_AMT], [],
     ["Free dinner cutoff", cutLabel(cfg.cutoff)], ["Late fee (₹)", cfg.fee], ["Exported", new Date()]
   ], { cellDates: true });
   ss["!cols"] = [{ wch: 26 }, { wch: 22 }];

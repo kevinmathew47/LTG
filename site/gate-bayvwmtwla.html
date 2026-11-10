@@ -35,7 +35,7 @@
 .mini{display:flex;gap:14px;flex-wrap:wrap;font-family:var(--f-pixel);font-size:15px;color:var(--ink-dim)}
 .mini b{color:var(--white);font-variant-numeric:tabular-nums}
 </style>
-<script src="config.js?v=4"></script>
+<script src="config.js?v=5"></script>
 </head>
 <body>
 <canvas id="sky" aria-hidden="true"></canvas>
@@ -88,7 +88,7 @@
 </div>
 
 <script src="https://cdn.jsdelivr.net/npm/jsqr@1.4.0/dist/jsQR.min.js"></script>
-<script src="assets/gfc.js"></script>
+<script src="assets/gfc.js?v=5"></script>
 <script>
 (() => {
 const { $, esc, api, Snd, FX, toast, fmtT, cutLabel } = GFC;
@@ -123,9 +123,21 @@ function show(kind, head, rec, meta) {
     <div class="big">${esc(head)}</div>
     ${rec ? `<div class="who">${esc(rec.name)}</div><div class="meta">${esc(rec.code)} · ${esc(rec.phone)}${rec.org ? " · " + esc(rec.org) : ""}</div><div>${badge(rec)}</div>` : ""}
     <div class="meta">${esc(meta || "")}</div>
+    ${rec && rec.prepay === "claimed" ? `<div class="meta" style="color:var(--amber)">Prepay submitted · UTR <b style="color:#fff;letter-spacing:.04em">${esc(rec.utr)}</b> · check it in your bank app</div>` : ""}
+    ${rec && rec.prepay === "received" ? `<div class="meta" style="color:var(--lime)">Dinner prepaid by UPI ✓</div>` : ""}
+    ${rec && rec.dinner === "due" && rec.prepay === "claimed" ? `<div class="row"><button class="btn px" data-pp="Received" type="button"><span class="in">✓ Prepay received</span></button><button class="btn danger px small" data-pp="Rejected" type="button"><span class="in">✕ Not received</span></button></div>` : ""}
     ${rec && rec.dinner === "due" ? `<div class="row"><button class="btn px" data-pay="Cash" type="button"><span class="in">Paid ₹${rec.fee} · Cash</span></button><button class="btn px" data-pay="UPI" type="button"><span class="in">Paid ₹${rec.fee} · UPI</span></button></div>` : ""}
     <div class="meta" id="rule"></div><div class="mini" id="mini"></div>`;
   tick(); mini();
+  $("#resIn").querySelectorAll("[data-pp]").forEach(b => b.onclick = async () => {
+    b.disabled = true;
+    try {
+      const r = await api("prepay", { pin: PIN, code: rec.code, status: b.dataset.pp });
+      if (r.rec.dinner === "paid") { Snd.good(); show("ok", "Prepaid · enjoy dinner", r.rec, `Arrived ${fmtT(r.rec.checkedInAt)}`); }
+      else show("due", `Collect ₹${r.rec.fee}`, r.rec, "Prepay not received. Collect at the gate.");
+      refresh();
+    } catch (e) { toast(e.message, "red"); b.disabled = false; }
+  });
   $("#resIn").querySelectorAll("[data-pay]").forEach(b => b.onclick = async () => {
     b.disabled = true;
     try { const r = await api("pay", { pin: PIN, code: rec.code, mode: b.dataset.pay }); Snd.good(); show("ok", "Paid · enjoy dinner", r.rec, `Arrived ${fmtT(r.rec.checkedInAt)}`); refresh(); }
@@ -143,6 +155,8 @@ async function checkIn(code) {
     const r = await api("checkin", { pin: PIN, code });
     if (r.status === "notfound") show("bad", "Not registered", null, `${code}: no registration found. Use walk-in below.`);
     else if (r.status === "already") show(r.rec.dinner === "due" ? "due" : "warn", "Already checked in", r.rec, `Arrived at ${fmtT(r.rec.checkedInAt)}`);
+    else if (r.rec.dinner === "paid" && r.rec.payMode === "UPI prepaid") show("ok", "Welcome! Dinner prepaid", r.rec, `Arrived ${fmtT(r.rec.checkedInAt)} · late, but prepaid by UPI`);
+    else if (r.rec.dinner === "due" && r.rec.prepay === "claimed") show("due", "Check prepay", r.rec, `Arrived ${fmtT(r.rec.checkedInAt)} · after the ${cutLabel(cfg.cutoff)} cutoff · they say they prepaid`);
     else if (r.rec.dinner === "due") show("due", `Collect ₹${r.rec.fee}`, r.rec, `Arrived ${fmtT(r.rec.checkedInAt)} · after the ${cutLabel(cfg.cutoff)} cutoff`);
     else show("ok", "Welcome! Free dinner", r.rec, `Arrived ${fmtT(r.rec.checkedInAt)} · on time`);
     refresh();
