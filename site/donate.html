@@ -9,7 +9,7 @@
 <link rel="icon" href="assets/logo.png">
 <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Kanit:ital,wght@0,400;0,500;0,600;0,700;0,800;0,900;1,700;1,800;1,900&display=swap">
-<link rel="stylesheet" href="assets/gfc.css?v=6">
+<link rel="stylesheet" href="assets/gfc.css?v=7">
 <style>
 /* Donate: top bar · title · one card that moves through Amount → Pay → Confirm → Status */
 :root{--f-display:"Kanit","Arial Black",system-ui,sans-serif;--f-body:"Kanit",system-ui,-apple-system,"Segoe UI",sans-serif;--f-pixel:var(--f-body);
@@ -76,6 +76,12 @@ label.lab .req{color:var(--lime)} label.lab .opt{color:var(--soft);font-weight:5
 .apps a{padding:11px 6px;background:#0E2150;border:2px solid #2E58B8;color:#fff;text-decoration:none;font:700 14px var(--f-body);text-align:center}
 .apps a:hover{border-color:var(--lime)}
 @media (pointer:coarse){.payBox canvas{width:170px;order:5}.payBox .cap{order:6}.payBox small{order:7}}
+.manual{width:100%;display:flex;flex-direction:column;gap:8px;padding:12px;border:2px dashed #2E58B8;background:rgba(14,33,80,.6);text-align:left}
+.manual b{font:700 15px var(--f-body);color:#fff}
+.manual span{font-size:14px;color:var(--soft);line-height:1.4}
+.manual .row{gap:8px;flex-wrap:nowrap;align-items:center}
+.manual code{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font:700 15px ui-monospace,Consolas,monospace;color:var(--lime);background:#0B1838;padding:9px 10px;border:2px solid #2E58B8}
+.manual .btn .in{padding:9px 12px;font-size:14px}
 .utrBox{display:flex;flex-direction:column;gap:10px}
 .link{background:none;border:0;color:var(--cyan);font:600 15px var(--f-body);cursor:pointer;padding:0;text-align:left;text-decoration:underline}
 
@@ -109,7 +115,7 @@ footer .container{display:flex;flex-wrap:wrap;gap:10px 24px;align-items:center;j
 footer b{color:#fff} footer a{color:var(--lime);font-weight:700;text-decoration:none}
 .soon .in{text-align:center;padding:30px}
 </style>
-<script src="config.js?v=6"></script>
+<script src="config.js?v=7"></script>
 </head>
 <body>
 <canvas id="sky" aria-hidden="true"></canvas>
@@ -160,7 +166,8 @@ footer b{color:#fff} footer a{color:var(--lime);font-weight:700;text-decoration:
           <div class="apps"><a id="aGpay" href="#">GPay</a><a id="aPhonepe" href="#">PhonePe</a><a id="aPaytm" href="#">Paytm</a></div>
           <canvas id="qr" aria-label="UPI QR code"></canvas>
           <span class="cap">Or scan with any UPI app</span>
-          <small>Paying to <b id="vpaL"></b></small>
+          <div class="manual"><b>Payment app showing an error?</b><span>Open GPay / PhonePe → <b>Pay UPI ID or number</b> → paste this ID → pay ₹<span class="amtL">250</span>.</span>
+            <div class="row"><code id="vpaL"></code><button class="btn ghost px" type="button" id="copyUpi"><span class="in">Copy UPI ID</span></button></div></div>
         </div>
         <div class="utrBox">
           <label class="lab" for="utr">After paying, enter the UPI transaction ID (UTR) <span class="req">*</span></label>
@@ -186,7 +193,7 @@ footer b{color:#fff} footer a{color:var(--lime);font-weight:700;text-decoration:
 </div></footer>
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcode-generator/1.4.4/qrcode.min.js"></script>
-<script src="assets/gfc.js?v=6"></script>
+<script src="assets/gfc.js?v=7"></script>
 <script>
 (() => {
 const { $, $$, api, FX, CFG, store, toast, esc, fmtDT } = GFC;
@@ -216,11 +223,17 @@ $("#v1").addEventListener("submit", ev => {
   if (GFC.normPhone($("#dPhone").value).length !== 10) { err.textContent = "Enter your 10-digit mobile number so you can check the status later."; $("#dPhone").focus(); return; }
   err.textContent = "";
   const ref = "GFCD" + Date.now().toString(36).toUpperCase().slice(-6);
-  const link = GFC.upiLink(ref, amount, "Let's Talk GFC donation"), qs = link.slice("upi://pay?".length);
+  const link = GFC.upiLink(ref, amount, "GFC donation"), qs = link.slice("upi://pay?".length);
   $("#payLink").href = link; $("#aGpay").href = "tez://upi/pay?" + qs; $("#aPhonepe").href = "phonepe://pay?" + qs; $("#aPaytm").href = "paytmmp://pay?" + qs;
   $("#vpaL").textContent = UPI.vpa; GFC.drawQR($("#qr"), link, 240);
   setStep(2); $("#card").scrollIntoView({ behavior: GFC.reduced ? "auto" : "smooth", block: "start" });
 });
+function copyUpi(btn, amt) {
+  const v = (CFG.upi || {}).vpa || "", done = () => { const t = btn.querySelector(".in") || btn; const o = t.textContent; t.textContent = "✓ Copied"; setTimeout(() => t.textContent = o, 1800); toast(`UPI ID copied. In GPay: Pay UPI ID or number → paste → ₹${amt}`); };
+  if (navigator.clipboard && navigator.clipboard.writeText) navigator.clipboard.writeText(v).then(done).catch(() => { prompt("Copy this UPI ID", v); });
+  else { const i = document.createElement("input"); i.value = v; document.body.appendChild(i); i.select(); try { document.execCommand("copy"); done(); } catch (e) { } i.remove(); }
+}
+$("#copyUpi").addEventListener("click", e => copyUpi(e.currentTarget, amount.toLocaleString("en-IN")));
 $("#back1").addEventListener("click", () => setStep(1));
 
 $("#v2").addEventListener("submit", async ev => {

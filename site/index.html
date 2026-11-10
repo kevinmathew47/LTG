@@ -17,7 +17,7 @@
 <link rel="icon" href="assets/logo.png">
 <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Kanit:ital,wght@0,400;0,500;0,600;0,700;0,800;0,900;1,700;1,800;1,900&display=swap">
-<link rel="stylesheet" href="assets/gfc.css?v=6">
+<link rel="stylesheet" href="assets/gfc.css?v=7">
 <style>
 /* Website layout: sticky nav · hero (title + speaker) · event details · registration with live pass · memory game · footer. */
 :root{
@@ -218,6 +218,13 @@ label.lab .req{color:var(--lime)}
 .ppApps a{padding:10px 6px;background:#0E2150;border:2px solid #2E58B8;color:#fff;text-decoration:none;font:700 14px var(--f-body)}
 .ppApps a:hover{border-color:var(--lime)}
 .ppPay small{font-size:13px;color:var(--soft);word-break:break-all}
+.manual{width:100%;display:flex;flex-direction:column;gap:8px;padding:12px;border:2px dashed #2E58B8;background:rgba(14,33,80,.6);text-align:left}
+.manual b{font:700 15px var(--f-body);color:#fff}
+.manual span{font-size:14px;color:var(--soft);line-height:1.4}
+.manual .row{gap:8px;flex-wrap:nowrap;align-items:center}
+.manual code{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font:700 15px ui-monospace,Consolas,monospace;color:var(--lime);background:#0B1838;padding:9px 10px;border:2px solid #2E58B8}
+.manual .btn .in{padding:9px 12px;font-size:14px}
+
 @media (pointer:coarse){.ppPay canvas{width:160px;order:3}.ppPay .cap{order:4}.ppPay small{order:5}}
 @media (max-width:560px){.prepay .in{padding:18px}.ppPay{order:-1}#ppForm .row{flex-wrap:wrap}#ppForm .row .btn,#ppForm .row .btn .in{width:100%}}
 
@@ -328,7 +335,7 @@ footer .fbtn.wa:hover .in{--b:#5BE38D}
 footer .copy{grid-column:1/-1;border-top:1px solid #1d3770;padding-top:12px;font-size:13px;color:#8FA8D6;text-align:center}
 @media (max-width:820px){footer .container{grid-template-columns:minmax(0,1fr)}footer .ev,footer .contact{text-align:left;align-items:flex-start}}
 </style>
-<script src="config.js?v=6"></script>
+<script src="config.js?v=7"></script>
 </head>
 <body>
 <noscript><p style="position:relative;z-index:5;margin:0;padding:12px 16px;background:#0B1838;color:#fff;font:16px sans-serif">Please turn on JavaScript to register for Let's Talk GFC.</p></noscript>
@@ -475,7 +482,8 @@ footer .copy{grid-column:1/-1;border-top:1px solid #1d3770;padding-top:12px;font
         <span class="cap">Scan with any UPI app</span>
         <a class="btn px" id="ppLink" href="#"><span class="in"><span>Pay ₹<span class="ppAmt">100</span> with UPI app</span></span></a>
         <div class="ppApps"><a id="ppGpay" href="#">GPay</a><a id="ppPhonepe" href="#">PhonePe</a><a id="ppPaytm" href="#">Paytm</a></div>
-        <small>Paying to <b id="ppVpa"></b></small>
+        <div class="manual"><b>Payment app showing an error?</b><span>Open GPay / PhonePe → <b>Pay UPI ID or number</b> → paste this ID → pay ₹<span class="ppAmt">100</span>.</span>
+          <div class="row"><code id="ppVpa"></code><button class="btn ghost px" type="button" id="ppCopy"><span class="in">Copy UPI ID</span></button></div></div>
       </div>
     </div></div>
   </div>
@@ -540,10 +548,10 @@ footer .copy{grid-column:1/-1;border-top:1px solid #1d3770;padding-top:12px;font
 </div>
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcode-generator/1.4.4/qrcode.min.js"></script>
-<script src="assets/ambient.js?v=6"></script>
-<script src="assets/gfc.js?v=6"></script>
-<script src="assets/pass.js?v=6"></script>
-<script src="assets/games.js?v=6"></script>
+<script src="assets/ambient.js?v=7"></script>
+<script src="assets/gfc.js?v=7"></script>
+<script src="assets/pass.js?v=7"></script>
+<script src="assets/games.js?v=7"></script>
 <script>
 (() => {
 const { $, $$, api, FX, CFG, store, toast, saveBlob } = GFC;
@@ -684,6 +692,12 @@ async function refreshPrepay() {
   try { const r = await api("findPass", { name: current.name, phone: current.phone }); Object.assign(current, { prepay: r.pass.prepay, utr: r.pass.utr }); renderPrepay(); }
   catch (e) { /* offline or not found: keep what we have */ }
 }
+function copyUpi(btn, amt) {
+  const v = (CFG.upi || {}).vpa || "", done = () => { const t = btn.querySelector(".in") || btn; const o = t.textContent; t.textContent = "✓ Copied"; setTimeout(() => t.textContent = o, 1800); toast(`UPI ID copied. In GPay: Pay UPI ID or number → paste → ₹${amt}`); };
+  if (navigator.clipboard && navigator.clipboard.writeText) navigator.clipboard.writeText(v).then(done).catch(() => { prompt("Copy this UPI ID", v); });
+  else { const i = document.createElement("input"); i.value = v; document.body.appendChild(i); i.select(); try { document.execCommand("copy"); done(); } catch (e) { } i.remove(); }
+}
+$("#ppCopy").addEventListener("click", e => copyUpi(e.currentTarget, PP_AMT));
 $("#ppForm").addEventListener("submit", async ev => {
   ev.preventDefault();
   const err = $("#ppErr"), btn = $("#ppBtn"); err.textContent = ""; btn.disabled = true;

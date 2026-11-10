@@ -134,8 +134,12 @@ const Local = (() => {
 
 /* UPI payment link (NPCI format). Amount is fixed; the pass code goes in the note and reference. */
 function upiLink(code, amount, note) {
+  // Personal (P2P) UPI link: only pa, pn, am, cu, tn. No `tr`/`mc`/`url` — those mark it as a merchant
+  // payment, and GPay/PhonePe then refuse it for a personal UPI ID ("exceeded bank limit" / "declined").
   const u = CFG.upi || {}; if (!u.vpa) return "";
-  const q = new URLSearchParams({ pa: u.vpa, pn: u.name || "Let's Talk GFC", am: Number(amount).toFixed(2), cu: "INR", tn: note || `${code} dinner prepay`, tr: code });
+  const clean = s => String(s || "").replace(/[^A-Za-z0-9 .-]/g, "").replace(/\s+/g, " ").trim().slice(0, 50);
+  const amt = Number(amount), am = Number.isInteger(amt) ? String(amt) : amt.toFixed(2);
+  const q = new URLSearchParams({ pa: u.vpa, pn: clean(u.name) || "Lets Talk GFC", am, cu: "INR", tn: clean(note || `${code} dinner`) });
   return "upi://pay?" + q.toString().replace(/\+/g, "%20");
 }
 
