@@ -335,7 +335,9 @@ footer .fbtn.wa:hover .in{--b:#5BE38D}
 footer .copy{grid-column:1/-1;border-top:1px solid #1d3770;padding-top:12px;font-size:13px;color:#8FA8D6;text-align:center}
 @media (max-width:820px){footer .container{grid-template-columns:minmax(0,1fr)}footer .ev,footer .contact{text-align:left;align-items:flex-start}}
 </style>
-<script src="config.js?v=7"></script>
+<script src="config.js?v=8"></script>
+<script>if (window.GFC_CONFIG && GFC_CONFIG.showDonate) document.documentElement.classList.add("donate-on");</script>
+<style>html:not(.donate-on) .donate,html:not(.donate-on) a[href="donate.html"]{display:none!important}</style>
 </head>
 <body>
 <noscript><p style="position:relative;z-index:5;margin:0;padding:12px 16px;background:#0B1838;color:#fff;font:16px sans-serif">Please turn on JavaScript to register for Let's Talk GFC.</p></noscript>

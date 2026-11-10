@@ -16,5 +16,8 @@ window.GFC_CONFIG = {
   // Dinner prepay by UPI. Put the UPI ID that should receive the money in `vpa`
   // (for example "yourname@okaxis"). Leave it empty to hide the prepay option.
   // You confirm each payment in the admin panel after checking your bank app.
+  // Donations page: true shows the "Donate" links and /donate.html; false hides them for now.
+  showDonate: false,
+
   upi: { vpa: "mathewk290@oksbi", name: "Christos Mar Thoma Church Yuvajana Sakhyam", amount: 100 }
 };
