@@ -189,45 +189,6 @@ label.lab .req{color:var(--lime)}
 
 /* vibe button */
 
-/* dinner prepay (UPI) */
-.prepay{margin-top:22px}
-.prepay .in{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,320px);gap:24px;padding:24px;align-items:start}
-@media (max-width:900px){.prepay .in{grid-template-columns:minmax(0,1fr)}}
-.ppInfo{display:flex;flex-direction:column;gap:12px;min-width:0}
-.ppInfo .k{font:700 14px var(--f-body);letter-spacing:.14em;color:var(--yellow)}
-.ppInfo h3{margin:0;font:italic 900 clamp(24px,3vw,32px)/1.05 var(--f-display);text-transform:uppercase}
-.ppInfo h3 em{font-style:inherit;color:var(--lime)}
-.ppInfo p{margin:0;color:var(--soft);font-size:16px;line-height:1.45}
-.ppStatus{display:flex;gap:12px;align-items:flex-start;padding:14px;border:2px solid #2E58B8;background:#0E2150}
-.ppStatus .dot{flex:none;width:12px;height:12px;border-radius:50%;margin-top:5px;background:#7F9BD0}
-.ppStatus b{display:block;font:800 17px var(--f-body);color:#fff}
-.ppStatus span{font-size:15px;color:var(--soft)}
-.ppStatus.claimed{border-color:var(--yellow)} .ppStatus.claimed .dot{background:var(--yellow)}
-.ppStatus.received{border-color:var(--lime)} .ppStatus.received .dot{background:var(--lime)}
-.ppStatus.rejected{border-color:#FF7272} .ppStatus.rejected .dot{background:#FF7272}
-.ppStatus .btn{margin-top:10px}
-#ppForm{display:flex;flex-direction:column;gap:8px}
-#ppForm .row{flex-wrap:nowrap}
-#ppForm .inp{flex:1;min-width:0;font-family:var(--f-body);letter-spacing:.06em}
-#ppForm small{color:var(--soft);font-size:14px}
-.ppPay{display:flex;flex-direction:column;align-items:center;gap:10px;text-align:center}
-.ppPay canvas{width:200px;max-width:100%;height:auto;image-rendering:pixelated;border:4px solid #fff}
-.ppPay .cap{font:600 15px var(--f-body);color:#fff}
-.ppPay .btn,.ppPay .btn .in{width:100%}
-.ppApps{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px;width:100%}
-.ppApps a{padding:10px 6px;background:#0E2150;border:2px solid #2E58B8;color:#fff;text-decoration:none;font:700 14px var(--f-body)}
-.ppApps a:hover{border-color:var(--lime)}
-.ppPay small{font-size:13px;color:var(--soft);word-break:break-all}
-.manual{width:100%;display:flex;flex-direction:column;gap:8px;padding:12px;border:2px dashed #2E58B8;background:rgba(14,33,80,.6);text-align:left}
-.manual b{font:700 15px var(--f-body);color:#fff}
-.manual span{font-size:14px;color:var(--soft);line-height:1.4}
-.manual .row{gap:8px;flex-wrap:nowrap;align-items:center}
-.manual code{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font:700 15px ui-monospace,Consolas,monospace;color:var(--lime);background:#0B1838;padding:9px 10px;border:2px solid #2E58B8}
-.manual .btn .in{padding:9px 12px;font-size:14px}
-
-@media (pointer:coarse){.ppPay canvas{width:160px;order:3}.ppPay .cap{order:4}.ppPay small{order:5}}
-@media (max-width:560px){.prepay .in{padding:18px}.ppPay{order:-1}#ppForm .row{flex-wrap:wrap}#ppForm .row .btn,#ppForm .row .btn .in{width:100%}}
-
 /* phone: burger menu (Register + Vibe) replaces the separate buttons */
 .burger,.bmenu{display:none}
 @media (max-width:560px){
@@ -389,10 +350,10 @@ footer .copy{grid-column:1/-1;border-top:1px solid #1d3770;padding-top:12px;font
       <p class="cdmini">Starts in <b id="cd">—</b></p>
     </div>
     <div class="guest">
-      <img src="assets/naveen.webp" alt="Naveen Richards smiling and holding a microphone">
+      <img src="assets/naveen.webp" alt="Naveen Richard smiling and holding a microphone">
       <div class="px gcard"><div class="in">
         <span class="k">GUEST SPEAKER</span>
-        <span class="nm">Naveen Richards</span>
+        <span class="nm">Naveen Richard</span>
         <span class="role">Ex-Stand-up Comedian, Actor &amp; Writer</span>
       </div></div>
     </div>
@@ -466,28 +427,6 @@ footer .copy{grid-column:1/-1;border-top:1px solid #1d3770;padding-top:12px;font
         </div>
       </div>
     </div>
-    <div class="px yellow prepay" id="prepay" hidden><div class="in">
-      <div class="ppInfo">
-        <span class="k">OPTIONAL · DINNER PREPAY</span>
-        <h3>Running late? Prepay dinner <em>₹<span class="ppAmt">100</span></em></h3>
-        <p>Dinner is free if you arrive by <b class="ppBy">5:45 PM</b>. If you might come later, pay now by UPI and walk straight in. No queue at the gate.</p>
-        <div class="ppStatus" id="ppStatus" aria-live="polite"></div>
-        <form id="ppForm" novalidate>
-          <label class="lab" for="utr">After paying, enter the UPI transaction ID (UTR)</label>
-          <div class="row"><input class="inp" id="utr" inputmode="numeric" autocomplete="off" placeholder="e.g. 431298765432" maxlength="35"><button class="btn px" type="submit" id="ppBtn"><span class="in">I've paid</span></button></div>
-          <p class="err" id="ppErr" role="alert"></p>
-          <small>Find it in your UPI app under the payment's details. It's usually 12 digits. We check it against our bank before confirming.</small>
-        </form>
-      </div>
-      <div class="ppPay" id="ppPay">
-        <canvas id="ppQR" aria-label="UPI QR code to pay"></canvas>
-        <span class="cap">Scan with any UPI app</span>
-        <a class="btn px" id="ppLink" href="#"><span class="in"><span>Pay ₹<span class="ppAmt">100</span> with UPI app</span></span></a>
-        <div class="ppApps"><a id="ppGpay" href="#">GPay</a><a id="ppPhonepe" href="#">PhonePe</a><a id="ppPaytm" href="#">Paytm</a></div>
-        <div class="manual"><b>Payment app showing an error?</b><span>Open GPay / PhonePe → <b>Pay UPI ID or number</b> → paste this ID → pay ₹<span class="ppAmt">100</span>.</span>
-          <div class="row"><code id="ppVpa"></code><button class="btn ghost px" type="button" id="ppCopy"><span class="in">Copy UPI ID</span></button></div></div>
-      </div>
-    </div></div>
   </div>
 </section>
 
@@ -665,57 +604,11 @@ function preview() { clearTimeout(drawT); drawT = setTimeout(() => { if (!curren
 $("#name").addEventListener("input", preview);
 function saveMine() { if (current) store.set("gfc-my-pass", { code: current.code, name: current.name, phone: current.phone }); }
 
-/* ---------- dinner prepay (UPI, verified by staff) ---------- */
-const UPI = CFG.upi || {}, PP_AMT = Number(UPI.amount || CFG.lateFee || 100);
-$$(".ppAmt").forEach(e => e.textContent = PP_AMT); $(".ppBy").textContent = CFG.arriveBy;
-function renderPrepay() {
-  const box = $("#prepay");
-  if (!current || !UPI.vpa) { box.hidden = true; return; }
-  box.hidden = false;
-  const st = current.prepay || "none", pay = st === "none" || st === "rejected";
-  const msg = {
-    none: ["Not paid", "Optional. Only if you might arrive after " + CFG.arriveBy + "."],
-    claimed: ["Payment submitted · checking", `UTR ${GFC.esc(current.utr || "")} received. We'll confirm it after checking our bank. It shows Received here once confirmed.`],
-    received: ["Dinner prepaid ✓", "All set. Just show your pass at the entry."],
-    rejected: ["We couldn't find that payment", "Check the transaction ID and submit again, or contact the Yuvajana Sakhyam Secretary: +91 79091 91060."]
-  }[st] || ["", ""];
-  const ps = $("#ppStatus"); ps.className = "ppStatus " + st;
-  ps.innerHTML = `<i class="dot" aria-hidden="true"></i><div><b>${msg[0]}</b><span>${msg[1]}</span>${st === "claimed" ? '<div><button class="btn ghost px small" type="button" id="ppRefresh"><span class="in">↻ Check status</span></button></div>' : ""}</div>`;
-  $("#ppForm").hidden = !pay; $("#ppPay").hidden = !pay;
-  if (pay) {
-    const link = GFC.upiLink(current.code, PP_AMT), qs = link.slice("upi://pay?".length);
-    $("#ppLink").href = link; $("#ppGpay").href = "tez://upi/pay?" + qs; $("#ppPhonepe").href = "phonepe://pay?" + qs; $("#ppPaytm").href = "paytmmp://pay?" + qs;
-    $("#ppVpa").textContent = UPI.vpa; GFC.drawQR($("#ppQR"), link, 240);
-  }
-  const rb = $("#ppRefresh"); if (rb) rb.onclick = refreshPrepay;
-}
-async function refreshPrepay() {
-  if (!current || !UPI.vpa) return;
-  try { const r = await api("findPass", { name: current.name, phone: current.phone }); Object.assign(current, { prepay: r.pass.prepay, utr: r.pass.utr }); renderPrepay(); }
-  catch (e) { /* offline or not found: keep what we have */ }
-}
-function copyUpi(btn, amt) {
-  const v = (CFG.upi || {}).vpa || "", done = () => { const t = btn.querySelector(".in") || btn; const o = t.textContent; t.textContent = "✓ Copied"; setTimeout(() => t.textContent = o, 1800); toast(`UPI ID copied. In GPay: Pay UPI ID or number → paste → ₹${amt}`); };
-  if (navigator.clipboard && navigator.clipboard.writeText) navigator.clipboard.writeText(v).then(done).catch(() => { prompt("Copy this UPI ID", v); });
-  else { const i = document.createElement("input"); i.value = v; document.body.appendChild(i); i.select(); try { document.execCommand("copy"); done(); } catch (e) { } i.remove(); }
-}
-$("#ppCopy").addEventListener("click", e => copyUpi(e.currentTarget, PP_AMT));
-$("#ppForm").addEventListener("submit", async ev => {
-  ev.preventDefault();
-  const err = $("#ppErr"), btn = $("#ppBtn"); err.textContent = ""; btn.disabled = true;
-  try {
-    const r = await api("claimPrepay", { code: current.code, phone: current.phone, utr: $("#utr").value });
-    Object.assign(current, { prepay: r.pass.prepay, utr: r.pass.utr }); $("#utr").value = ""; renderPrepay(); toast("Payment submitted. We'll confirm it soon.");
-  } catch (e) { err.textContent = e.message; }
-  finally { btn.disabled = false; }
-});
-
 function showPass(p, note) {
   current = p; saveMine();
   paint({ name: p.name, code: p.code });
   $("#passSt").textContent = note;
   $("#passBtns").hidden = false;
-  renderPrepay(); if (p.prepay === undefined) refreshPrepay();
   const col = $("#passCol"); col.classList.remove("ready"); void col.offsetWidth; col.classList.add("ready");
 }
 $("#dl").addEventListener("click", async () => {
@@ -724,7 +617,7 @@ $("#dl").addEventListener("click", async () => {
   saveBlob(b, `${current.code}-LetsTalkGFC-pass.png`); toast("Pass downloaded. Show the QR at the entry.");
 });
 $("#other").addEventListener("click", () => {
-  current = null; store.del("gfc-my-pass"); $("#reg").reset(); paint({ name: "" }); renderPrepay();
+  current = null; store.del("gfc-my-pass"); $("#reg").reset(); paint({ name: "" });
   $("#passSt").textContent = "Live preview: type your name to see your pass."; $("#passBtns").hidden = true; $("#name").focus();
 });
 
