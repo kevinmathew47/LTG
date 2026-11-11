@@ -9,6 +9,7 @@
 
 const STAFF_PIN = 'CHANGE-ME';          // <-- set this before deploying
 const TZ = 'Asia/Kolkata';
+const EVENT_DATE = '2026-11-13';      // dinner fee applies only after this date's cutoff (India time)
 const SHEET = 'Registrations';
 const HEAD = ['Pass Code', 'Name', 'Mobile', 'Email', 'Parish / College / Workplace',
   'Registered At', 'Checked In At', 'Arrival', 'Dinner', 'Fee (₹)', 'Payment Mode', 'Paid At',
@@ -234,8 +235,8 @@ function pubDon_(d) { return { id: d.id, name: d.name, amount: d.amount, status:
 /* ---------------- helpers ---------------- */
 function checkin_(sh, hit) {
   const now = new Date(), cfg = cfg_();
-  const mins = Number(Utilities.formatDate(now, TZ, 'H')) * 60 + Number(Utilities.formatDate(now, TZ, 'm'));
-  const parts = cfg.cutoff.split(':').map(Number), late = mins > parts[0] * 60 + parts[1];
+  // Late = after 13 Nov 2026 at the cutoff (e.g. 17:45) India time. Any scan before that is on time.
+  const late = Utilities.formatDate(now, TZ, "yyyy-MM-dd'T'HH:mm") > cfg.eventDate + 'T' + cfg.cutoff;
   const fee = late ? cfg.fee : 0;
   if (late && fee > 0 && hit.rec.prepay === 'received') {
     sh.getRange(hit.row, C.inAt, 1, 6).setValues([[now, 'Late', 'Paid', fee, PREPAY_MODE, now]]);
@@ -247,7 +248,7 @@ function checkin_(sh, hit) {
 
 function cfg_() {
   const p = PropertiesService.getScriptProperties();
-  return { cutoff: p.getProperty('CUTOFF') || '17:45', fee: Number(p.getProperty('FEE') || 100) };
+  return { cutoff: p.getProperty('CUTOFF') || '17:45', fee: Number(p.getProperty('FEE') || 100), eventDate: p.getProperty('EVENT_DATE') || EVENT_DATE };
 }
 
 function sheet_() {

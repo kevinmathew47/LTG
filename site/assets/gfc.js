@@ -2,7 +2,7 @@
 (function () {
 "use strict";
 const CFG = Object.assign({
-  apiUrl: "", eventStart: "2026-11-13T18:00:00+05:30", arriveBy: "5:45 PM", lateFee: 100, demoPin: "1234"
+  apiUrl: "", eventDate: "2026-11-13", eventStart: "2026-11-13T18:00:00+05:30", arriveBy: "5:45 PM", lateFee: 100, demoPin: "1234"
 }, window.GFC_CONFIG || {});
 // ?demo=1 = practice mode: everything stays on this device, live Google Sheet untouched (volunteer training / testing)
 if (/[?&]demo=1\b/.test(location.search)) CFG.apiUrl = "";
@@ -36,12 +36,14 @@ const Local = (() => {
   }
   const PREPAY_MODE = "UPI prepaid";
   function checkin(d, r) {
-    const now = Date.now(), late = mins(now) > cut(d.cfg.cutoff), fee = late ? Number(d.cfg.fee) || 0 : 0;
+    const now = Date.now(), late = now > lateFrom(d.cfg), fee = late ? Number(d.cfg.fee) || 0 : 0;
     if (late && fee > 0 && r.prepay === "received") Object.assign(r, { checkedInAt: now, fee, dinner: "paid", payMode: PREPAY_MODE, paidAt: now });
     else Object.assign(r, { checkedInAt: now, fee, dinner: late && fee > 0 ? "due" : "free" });
   }
   const pubDon = x => ({ id: x.id, name: x.name, amount: x.amount, status: x.status, utr: x.utr ? "••••" + x.utr.slice(-4) : "", submittedAt: x.submittedAt, checkedAt: x.checkedAt });
   const pub = r => ({ code: r.code, name: r.name, phone: r.phone, checkedInAt: r.checkedInAt, dinner: r.dinner, fee: r.fee, prepay: r.prepay || "none", utr: r.utr ? "••••" + r.utr.slice(-4) : "", prepayAt: r.prepayAt || null });
+  // fee applies only after the event date + cutoff, India time (+05:30)
+  const lateFrom = c => new Date(`${c.eventDate || CFG.eventDate}T${c.cutoff || "17:45"}:59.999+05:30`).getTime();
   const find = (d, c) => d.regs.find(r => r.code === String(c || "").toUpperCase().trim());
   const A = {
     info() { const d = load(); return Object.assign({ count: d.regs.length }, d.cfg); },
