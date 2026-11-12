@@ -148,11 +148,13 @@ body{font-family:var(--f-body);font-size:17px;background:#0A86EE}
 /* flipbook */
 .stage{position:relative;z-index:2;display:grid;grid-template-columns:auto auto auto;grid-template-areas:"prev book next" ". meta .";
   justify-content:center;align-items:center;column-gap:clamp(10px,2vw,26px);row-gap:10px;
-  padding:calc(88px + env(safe-area-inset-top,0px)) 16px 18px;min-height:100svh;align-content:start}
+  padding:calc(88px + env(safe-area-inset-top,0px)) 16px 24px;align-content:start}
 .stage .prev{grid-area:prev}.stage .next{grid-area:next}.stage .bookwrap{grid-area:book}
 .stage .meta{grid-area:meta;display:flex;flex-direction:column;align-items:center;gap:2px}
 .stage .side .in{padding:16px 14px;font-size:20px}
-@media (max-width:759px){.stage{grid-template-columns:auto 1fr auto;grid-template-areas:"book book book" "prev meta next";column-gap:10px;padding-top:calc(74px + env(safe-area-inset-top,0px))}
+@media (max-width:759px){.stage{grid-template-columns:auto 1fr auto;grid-template-areas:"book book book" "prev meta next";column-gap:10px;padding:calc(74px + env(safe-area-inset-top,0px)) 10px 18px}
+  .stage .tip{display:none}
+  .topbar{position:absolute}
   .stage .side .in{padding:11px 16px;font-size:16px}}
 .bookwrap{display:flex;justify-content:center;min-width:0}
 .book{position:relative;margin:0 auto}
@@ -396,8 +398,8 @@ function drawSongHead(g, s, n, cont, y) {
   g.save(); g.strokeStyle = "#2E58B8"; g.lineWidth = 3; g.setLineDash([12, 9]); g.beginPath(); g.moveTo(IX, yy + 14); g.lineTo(IX + IW, yy + 14); g.stroke(); g.restore();
   return yy + 34;
 }
-function drawPage(p, i, total) {
-  const c = document.createElement("canvas"); c.width = PW; c.height = PH; const g = c.getContext("2d"); p.hot = [];
+function drawPage(p, i, total, sc = 1) {
+  const c = document.createElement("canvas"); c.width = Math.round(PW * sc); c.height = Math.round(PH * sc); const g = c.getContext("2d"); g.scale(sc, sc); p.hot = [];
   if (p.kind === "cover") {
     sky(g, PW, PH, 1, { clouds: 7, birds: 7, stars: 16, birdBand: .3 });
     const lh = 300, lw = LOGO.naturalWidth * lh / LOGO.naturalHeight; logoAt(g, PW / 2 - lw / 2, 110, lh);
@@ -471,13 +473,16 @@ function drawSlide(g, s, i) {
   sky(g, SW, SH, 200 + i, { clouds: 5, birds: 5, birdBand: .1 });
   logoAt(g, 40, 26, 124); lockup(g, 168, 82, 38);
   if (s.kind === "title") {
-    chip(g, `SONG ${s.n}`, SW / 2, 300, 44, LIME, NAVY, { align: "center" });
-    let size = 170, lines;
-    do { lines = wrap(g, s.song.title.toUpperCase(), `italic 900 ${size}px`, 1640); size -= 6; } while ((lines.length > 2 || lines.some(l => g.measureText(l).width > 1640)) && size > 70);
-    size += 6; const top = 560 - (lines.length - 1) * size * .5;
-    g.save(); g.translate(SW / 2, 0); g.rotate(rad(-3)); g.transform(1, 0, Math.tan(rad(-5)), 1, 0, 0);
-    lines.forEach((l, k) => otext(g, l, 0, top + k * size * 1.05, size, LIME, "center")); g.restore();
-    if (s.song.by) ptext(g, s.song.by, SW / 2, 800, "600 48px", "#FFFFFF", "center");
+    let size = 140, lines;
+    for (; size >= 70; size -= 4) { lines = wrap(g, s.song.title.toUpperCase(), `italic 900 ${size}px`, 1400); if (lines.length <= 2 && lines.every(l => g.measureText(l).width <= 1400)) break; }
+    const lineH = size * 1.12, chipH = 44 * 1.75, gap = 56;
+    const blockH = chipH + gap + size * .8 + (lines.length - 1) * lineH + (s.song.by ? 110 : 0);
+    const y0 = 170 + (SH - 170 - 40 - blockH) / 2;
+    chip(g, `SONG ${s.n}`, SW / 2, y0, 44, LIME, NAVY, { align: "center" });
+    const b1 = y0 + chipH + gap + size * .8;
+    g.save(); g.translate(SW / 2, b1); g.rotate(rad(-2)); g.transform(1, 0, Math.tan(rad(-5)), 1, 0, 0);
+    lines.forEach((l, k) => otext(g, l, 0, k * lineH, size, LIME, "center")); g.restore();
+    if (s.song.by) ptext(g, s.song.by, SW / 2, b1 + (lines.length - 1) * lineH + 110, "600 48px", "#FFFFFF", "center");
     return;
   }
   chip(g, `${s.n} · ${s.song.title.toUpperCase()}`, SW - 44, 56, 30, LIME, NAVY, { align: "right" });
@@ -501,13 +506,14 @@ const pageText = p => p.kind === "song" ? `${p.song.title}. ` + p.items.map(it =
 function bookSize() {
   const spread = innerWidth >= 760;                    // two pages side by side on laptops / tablets
   const top = innerWidth >= 760 ? 88 : 74, below = spread ? 50 : 112;
-  const availW = innerWidth - (spread ? 2 * 16 + 2 * 80 : 32), maxH = Math.max(380, innerHeight - top - below);
+  const availW = innerWidth - (spread ? 2 * 16 + 2 * 80 : 20), maxH = spread ? Math.max(380, innerHeight - top - below) : 9999;
   let w = Math.min(640, spread ? availW / 2 : availW, maxH / 1.4);
   return { w: Math.floor(w), h: Math.floor(w * 1.4), spread };
 }
 function build() {
   pages = layout(songs);
-  imgs = pages.map((p, i) => drawPage(p, i, pages.length).toDataURL("image/jpeg", .92));
+  const { w } = bookSize(), sc = Math.min(1, Math.max(.55, w * Math.min(2, devicePixelRatio || 1) / PW));
+  imgs = pages.map((p, i) => drawPage(p, i, pages.length, sc).toDataURL("image/jpeg", .9));
   return mountBook();
 }
 let lastSpread = null;
@@ -561,7 +567,7 @@ addEventListener("resize", () => { clearTimeout(rt); rt = setTimeout(() => {
 const topbar = $("#topbar"), badge = $("#badgeNav"), badgeBtn = $("#badgeBtn");
 function setMenu(open) { if (open && window.__closeBurger) window.__closeBurger(); badge.classList.toggle("open", open); document.documentElement.classList.toggle("island-open", open); badgeBtn.setAttribute("aria-expanded", String(open)); $$("#badgeMenu .btn").forEach(b => b.tabIndex = open ? 0 : -1); }
 let compact = false;
-function onScroll() { const c = scrollY > (innerWidth <= 560 ? 24 : 60); if (c !== compact) { compact = c; topbar.classList.toggle("compact", c); if (!c) setMenu(false); } }
+function onScroll() { const c = innerWidth >= 760 && scrollY > 60; if (c !== compact) { compact = c; topbar.classList.toggle("compact", c); if (!c) setMenu(false); } }
 addEventListener("scroll", onScroll, { passive: true }); onScroll();
 badgeBtn.addEventListener("click", () => setMenu(!badge.classList.contains("open")));
 document.addEventListener("click", e => { if (!badge.contains(e.target)) setMenu(false); });
@@ -640,7 +646,7 @@ async function busy(btn, label, fn) {
 const makePDF = btn => busy(btn, "Making PDF…", async () => {
   if (!window.jspdf) await loadScript("https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js");
   const doc = new jspdf.jsPDF({ unit: "mm", format: [148, 207.2], orientation: "portrait" });
-  imgs.forEach((d, i) => { if (i) doc.addPage([148, 207.2], "portrait"); doc.addImage(d, "JPEG", 0, 0, 148, 207.2); });
+  pages.forEach((p, i) => { if (i) doc.addPage([148, 207.2], "portrait"); doc.addImage(drawPage(p, i, pages.length, 1).toDataURL("image/jpeg", .9), "JPEG", 0, 0, 148, 207.2); });
   doc.setProperties({ title: "Let's Talk GFC · Songbook" });
   doc.save("LetsTalkGFC-Songbook.pdf"); toast("Songbook PDF downloaded");
 });
