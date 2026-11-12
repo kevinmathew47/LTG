@@ -146,7 +146,8 @@ body{font-family:var(--f-body);font-size:17px;background:#0A86EE}
 .bmenu .bmActs .btn,.bmenu .bmActs .btn .in{width:100%}
 .bmenu .bmActs .btn .in{justify-content:center;padding:13px 8px;font-size:16px;white-space:nowrap}
 /* flipbook */
-.stage{position:relative;z-index:2;display:grid;grid-template-columns:auto auto auto;grid-template-areas:"prev book next" ". meta .";
+body{min-height:100vh;min-height:100dvh;display:flex;flex-direction:column}
+.stage{flex:1;position:relative;z-index:2;display:grid;grid-template-columns:auto auto auto;grid-template-areas:"prev book next" ". meta .";
   justify-content:center;align-items:center;column-gap:clamp(10px,2vw,26px);row-gap:10px;
   padding:calc(88px + env(safe-area-inset-top,0px)) 16px 24px;align-content:start}
 .stage .prev{grid-area:prev}.stage .next{grid-area:next}.stage .bookwrap{grid-area:book}
@@ -154,6 +155,8 @@ body{font-family:var(--f-body);font-size:17px;background:#0A86EE}
 .stage .side .in{padding:16px 14px;font-size:20px}
 @media (max-width:759px){.stage{grid-template-columns:auto 1fr auto;grid-template-areas:"book book book" "prev meta next";column-gap:10px;padding:calc(74px + env(safe-area-inset-top,0px)) 10px 18px}
   .stage .tip{display:none}
+  .stage{align-content:center}
+  footer{padding-block:10px calc(10px + env(safe-area-inset-bottom,0px));font-size:13px}
   .topbar{position:absolute}
   .stage .side .in{padding:11px 16px;font-size:16px}}
 .bookwrap{display:flex;justify-content:center;min-width:0}
@@ -506,7 +509,8 @@ const pageText = p => p.kind === "song" ? `${p.song.title}. ` + p.items.map(it =
 function bookSize() {
   const spread = innerWidth >= 760;                    // two pages side by side on laptops / tablets
   const top = innerWidth >= 760 ? 88 : 74, below = spread ? 50 : 112;
-  const availW = innerWidth - (spread ? 2 * 16 + 2 * 80 : 20), maxH = spread ? Math.max(380, innerHeight - top - below) : 9999;
+  const foot = spread ? 0 : (document.querySelector("footer")?.offsetHeight || 60) + 76;
+  const availW = innerWidth - (spread ? 2 * 16 + 2 * 80 : 20), maxH = spread ? Math.max(380, innerHeight - top - below) : Math.max(300, innerHeight - top - foot);
   let w = Math.min(640, spread ? availW / 2 : availW, maxH / 1.4);
   return { w: Math.floor(w), h: Math.floor(w * 1.4), spread };
 }
