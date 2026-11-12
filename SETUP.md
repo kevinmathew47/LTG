@@ -19,7 +19,9 @@ The data goes into a **Google Sheet** that you own, so you can also open it in G
 1. Go to <https://sheets.google.com> and create a blank sheet. Name it **Let's Talk GFC Registrations**.
 2. In the sheet, open **Extensions → Apps Script**.
 3. Delete the code that's there. Paste in everything from `apps-script/Code.gs`.
-4. On line 10, change `const STAFF_PIN = 'CHANGE-ME';` to a secret PIN, for example `'4827'`. Volunteers type this PIN to unlock the scanner and admin panel.
+4. On lines 10–11, set two different secret PINs:
+   - `ADMIN_PIN`: organisers. Opens the **admin panel and the scanner** (everything).
+   - `SCAN_PIN`: gate volunteers. Opens **only the entry scanner** (scan, check in, walk-ins, mark paid). It can't delete, undo, change settings or open the admin panel.
 5. Click **Save**. Choose `setup` in the function dropdown, then click **Run**. Google asks for permission: choose your account → **Advanced** → **Go to project** → **Allow**. A **Registrations** tab appears in your sheet.
 6. Click **Deploy → New deployment**. Click the gear icon and pick **Web app**, then set:
    - **Execute as:** Me
@@ -66,7 +68,7 @@ GitHub Pages or any other static host works too.
 People who might arrive after 5:45 PM can prepay the ₹100 dinner by UPI from their pass. The money goes straight to your UPI ID: no payment company, no commission. **UPI can't confirm payments to a website by itself, so you check each one yourself.**
 
 **Turn it on:**
-1. Update the backend: open your Apps Script, replace the code with the new `apps-script/Code.gs` (keep your own `STAFF_PIN` on line 10), click **Save**, then **Deploy → Manage deployments → ✏️ Edit → Version: New version → Deploy**. The web app link stays the same. The sheet gets four new columns automatically: Dinner Prepay, UPI Ref (UTR), Prepay Claimed At, Prepay Checked At.
+1. Update the backend: open your Apps Script, replace the code with the new `apps-script/Code.gs` (put your own `ADMIN_PIN` and `SCAN_PIN` back on lines 10–11), click **Save**, then **Deploy → Manage deployments → ✏️ Edit → Version: New version → Deploy**. The web app link stays the same. The sheet gets four new columns automatically: Dinner Prepay, UPI Ref (UTR), Prepay Claimed At, Prepay Checked At.
 2. In `site/config.js`, put the UPI ID that should receive the money: `upi: { vpa: "yourname@okaxis", … }`. Push to GitHub; Vercel updates by itself.
 
 **How it works:**
@@ -108,7 +110,7 @@ People who might arrive after 5:45 PM can prepay the ₹100 dinner by UPI from t
 
 ## Go-live checklist
 
-1. `apps-script/Code.gs`: `STAFF_PIN` changed, deployed as a web app (Anyone).
+1. `apps-script/Code.gs`: `ADMIN_PIN` and `SCAN_PIN` set (two different PINs), deployed as a web app (Anyone).
 2. `site/config.js`: `apiUrl` set to the web app URL. The yellow "DEMO MODE" banner disappears once it's set.
 3. Upload the whole `site` folder to Netlify (or any static host). The `_headers` file sets caching and allows the camera for the scanner page.
 4. After you have the final address, edit `site/index.html` and change `og:image` to the full URL, for example `https://letstalkgfc.netlify.app/assets/og.jpg`, so WhatsApp and Instagram show the poster when the link is shared.

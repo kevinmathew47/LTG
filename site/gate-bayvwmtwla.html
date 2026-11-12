@@ -88,7 +88,7 @@
 </div>
 
 <script src="https://cdn.jsdelivr.net/npm/jsqr@1.4.0/dist/jsQR.min.js"></script>
-<script src="assets/gfc.js?v=9"></script>
+<script src="assets/gfc.js?v=10"></script>
 <script>
 (() => {
 const { $, esc, api, Snd, FX, toast, fmtT, cutLabel } = GFC;
@@ -230,7 +230,7 @@ $("#walk").addEventListener("submit", async e => {
   finally { btn.disabled = false; }
 });
 
-GFC.staffGate((pin, c) => { PIN = pin; if (c && c.cutoff) cfg = { cutoff: c.cutoff, fee: c.fee, eventDate: c.eventDate || "2026-11-13" }; tick(); refresh(); setInterval(refresh, 20000); if (!matchMedia("(pointer:coarse)").matches) $("#codeIn").focus(); });
+GFC.staffGate((pin, c) => { PIN = pin; if (c && c.role === "scan") { const a = document.querySelector('a[href="crew-vmieok6wz8.html"]'); if (a) a.hidden = true; } if (c && c.cutoff) cfg = { cutoff: c.cutoff, fee: c.fee, eventDate: c.eventDate || "2026-11-13" }; tick(); refresh(); setInterval(refresh, 20000); if (!matchMedia("(pointer:coarse)").matches) $("#codeIn").focus(); });
 })();
 </script>
 </body>

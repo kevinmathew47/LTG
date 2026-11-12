@@ -1,13 +1,15 @@
 /**
  * Let's Talk GFC — registration backend (Google Apps Script + Google Sheets)
  *
- * 1. Change STAFF_PIN below to a secret number only your volunteers know.
+ * 1. Set ADMIN_PIN (organisers: admin panel + scanner) and SCAN_PIN (gate volunteers: scanner only) below.
+ *    Use two different secret numbers.
  * 2. Deploy ▸ New deployment ▸ Web app ▸ Execute as: Me ▸ Who has access: Anyone.
  * 3. Copy the web app URL into site/config.js (apiUrl).
  * Full steps: SETUP.md
  */
 
-const STAFF_PIN = 'CHANGE-ME';          // <-- set this before deploying
+const ADMIN_PIN = 'CHANGE-ME';          // <-- organisers: admin panel AND scanner (full access)
+const SCAN_PIN  = 'CHANGE-ME';          // <-- gate volunteers: entry scanner only
 const TZ = 'Asia/Kolkata';
 const EVENT_DATE = '2026-11-13';      // dinner fee applies only after this date's cutoff (India time)
 const SHEET = 'Registrations';
@@ -41,12 +43,24 @@ const PUBLIC_ACTIONS = { info: a_info, register: a_register, findPass: a_findPas
 const STAFF_ACTIONS = { verify: a_verify, list: a_list, checkin: a_checkin, walkin: a_walkin, pay: a_pay, prepay: a_prepay, undo: a_undo, remove: a_remove, settings: a_settings,
   donations: a_donations, donationSet: a_donationSet };
 
+// What the scanner PIN may do. Everything else (delete, undo, settings, donations) needs the admin PIN.
+const SCAN_ACTIONS = { verify: 1, list: 1, checkin: 1, walkin: 1, pay: 1, prepay: 1 };
+
+function role_(pin) {
+  pin = String(pin || '');
+  if (ADMIN_PIN !== 'CHANGE-ME' && pin === ADMIN_PIN) return 'admin';
+  if (SCAN_PIN !== 'CHANGE-ME' && SCAN_PIN !== ADMIN_PIN && pin === SCAN_PIN) return 'scan';
+  return '';
+}
+
 function route_(b) {
   if (PUBLIC_ACTIONS[b.action]) return Object.assign({ ok: true }, PUBLIC_ACTIONS[b.action](b));
   if (STAFF_ACTIONS[b.action]) {
-    if (STAFF_PIN === 'CHANGE-ME') return { ok: false, auth: false, error: 'Set STAFF_PIN in Code.gs and redeploy.' };
-    if (String(b.pin || '') !== STAFF_PIN) return { ok: false, auth: false, error: 'Wrong staff PIN.' };
-    return Object.assign({ ok: true }, STAFF_ACTIONS[b.action](b));
+    if (ADMIN_PIN === 'CHANGE-ME') return { ok: false, auth: false, error: 'Set ADMIN_PIN in Code.gs and redeploy.' };
+    const role = role_(b.pin);
+    if (!role) return { ok: false, auth: false, error: 'Wrong staff PIN.' };
+    if (role === 'scan' && !SCAN_ACTIONS[b.action]) return { ok: false, auth: false, role: 'scan', error: 'This is the scanner PIN. Use the admin PIN for this.' };
+    return Object.assign({ ok: true, role: role }, STAFF_ACTIONS[b.action](b));
   }
   return { ok: false, error: 'Unknown action.' };
 }

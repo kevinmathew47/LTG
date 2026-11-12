@@ -2,7 +2,7 @@
 (function () {
 "use strict";
 const CFG = Object.assign({
-  apiUrl: "", eventDate: "2026-11-13", eventStart: "2026-11-13T18:00:00+05:30", arriveBy: "5:45 PM", lateFee: 100, demoPin: "1234"
+  apiUrl: "", eventDate: "2026-11-13", eventStart: "2026-11-13T18:00:00+05:30", arriveBy: "5:45 PM", lateFee: 100, demoPin: "1234", demoScanPin: "5678"
 }, window.GFC_CONFIG || {});
 // ?demo=1 = practice mode: everything stays on this device, live Google Sheet untouched (volunteer training / testing)
 if (/[?&]demo=1\b/.test(location.search)) CFG.apiUrl = "";
@@ -122,14 +122,20 @@ const Local = (() => {
       save(d); return { cfg: d.cfg };
     }
   };
+  const SCAN_OK = ["verify", "list", "checkin", "walkin", "pay", "prepay"];
   const STAFF = ["verify", "list", "checkin", "walkin", "pay", "prepay", "undo", "remove", "settings", "donations", "donationSet"];
   return {
     call(action, b) {
       return new Promise((res, rej) => setTimeout(() => {
         try {
-          if (STAFF.includes(action) && String(b.pin) !== String(CFG.demoPin)) { const e = new Error("Wrong staff PIN."); e.auth = false; throw e; }
+          let role = "";
+          if (STAFF.includes(action)) {
+            role = String(b.pin) === String(CFG.demoPin) ? "admin" : String(b.pin) === String(CFG.demoScanPin) ? "scan" : "";
+            if (!role) { const e = new Error("Wrong staff PIN."); e.auth = false; throw e; }
+            if (role === "scan" && !SCAN_OK.includes(action)) { const e = new Error("This is the scanner PIN. Use the admin PIN for this."); e.auth = false; e.role = "scan"; throw e; }
+          }
           if (!A[action]) throw new Error("Unknown action.");
-          res(Object.assign({ ok: true }, A[action](b)));
+          res(Object.assign({ ok: true }, role ? { role } : {}, A[action](b)));
         } catch (e) { rej(e); }
       }, 220));
     }
@@ -324,19 +330,24 @@ function toast(msg, kind) {
 }
 
 /* ---------------- staff PIN gate ---------------- */
-function staffGate(onReady) {
+function staffGate(onReady, opts) {
+  const need = (opts && opts.role) || "";              // "admin" = this page needs the admin PIN
   const saved = sessionStorage.getItem("gfc-pin");
   const el = document.createElement("div"); el.className = "gate";
   el.innerHTML = `<div class="px cyan"><div class="in">
     <div class="arcade lime-t" style="font-size:13px">STAFF ONLY</div>
-    <div style="font:italic 900 30px/1 var(--f-display);text-transform:uppercase">Enter staff PIN</div>
+    <div style="font:italic 900 30px/1 var(--f-display);text-transform:uppercase">${need === "admin" ? "Enter admin PIN" : "Enter staff PIN"}</div>
     <form id="pinForm" novalidate><input id="pinIn" class="inp" type="password" inputmode="numeric" autocomplete="off" placeholder="••••" style="text-align:center;font-size:24px;letter-spacing:.3em">
     <p class="err" id="pinErr" role="alert"></p>
     <button class="btn px" type="submit" style="width:100%"><span class="in" style="width:100%">Unlock</span></button></form>
-    ${CFG.apiUrl ? "" : `<div class="dim pixel" style="font-size:13px">Demo mode PIN: ${esc(CFG.demoPin)}</div>`}
+    ${CFG.apiUrl ? "" : `<div class="dim pixel" style="font-size:13px">Practice mode · admin PIN ${esc(CFG.demoPin)}${need === "admin" ? "" : ` · scanner PIN ${esc(CFG.demoScanPin)}`}</div>`}
   </div></div>`;
   const tryPin = async pin => {
-    try { const r = await api("verify", { pin }); sessionStorage.setItem("gfc-pin", pin); el.remove(); onReady(pin, r); return true; }
+    try {
+      const r = await api("verify", { pin });
+      if (need === "admin" && r.role && r.role !== "admin") { const e = new Error("That's the scanner PIN. The admin panel needs the admin PIN."); e.auth = false; throw e; }
+      sessionStorage.setItem("gfc-pin", pin); el.remove(); onReady(pin, r); return true;
+    }
     catch (e) { if (e.auth === false) sessionStorage.removeItem("gfc-pin"); $("#pinErr", el).textContent = e.message; Snd.bad(); return false; }
   };
   document.body.appendChild(el);
