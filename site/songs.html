@@ -159,7 +159,8 @@ body{min-height:100vh;min-height:100dvh;display:flex;flex-direction:column}
   footer{padding-block:10px calc(10px + env(safe-area-inset-bottom,0px));font-size:13px}
   .topbar{position:absolute}
   .stage .side .in{padding:11px 16px;font-size:16px}}
-.bookwrap{display:flex;justify-content:center;min-width:0}
+.bookwrap{display:flex;justify-content:center;min-width:0;overflow:hidden;contain:paint;isolation:isolate}
+html,body{overflow-x:hidden}
 .book{position:relative;margin:0 auto}
 .pf{background:#1FA2F7;overflow:hidden}
 .pf img{display:block;width:100%;height:100%;pointer-events:none;user-select:none;-webkit-user-drag:none}
@@ -560,10 +561,12 @@ addEventListener("keydown", e => {
   if (e.key === "ArrowRight" || e.key === "PageDown") flip.flipNext();
   if (e.key === "ArrowLeft" || e.key === "PageUp") flip.flipPrev();
 });
-let rt = 0;
+let rt = 0, lastW = innerWidth;
 addEventListener("resize", () => { clearTimeout(rt); rt = setTimeout(() => {
   if (!pages.length || !flip) return;
   const { h, spread } = bookSize(), cur = $("#book");
+  if (!spread && innerWidth === lastW) return;          // phone address bar showing/hiding: keep the book as it is
+  lastW = innerWidth;
   if (spread !== lastSpread || Math.abs(cur.clientHeight - h) > 10) mountBook();
 }, 250); });
 
