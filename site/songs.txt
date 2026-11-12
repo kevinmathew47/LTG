@@ -1,0 +1,284 @@
+# Let's Talk GFC — songbook
+#
+# HOW TO EDIT
+# - Start each song with a line:  TITLE: Song name
+#   (optional next line)          BY: Artist / language
+# - Section headings work in either style:  [Verse 1]   [Chorus]   Chorus:   Pre-Chorus:
+# - Leave a blank line between verses.
+# - Lines starting with "#" are notes for the band (x2, music break…). They show small in the book and are left off the slides.
+# - Save, then refresh the Songs page. The flipbook, PDF, Present screen and PPT all update.
+
+TITLE: Lighthouse
+BY: Rend Collective
+[Verse 1]
+In my wrestling and in my doubts
+In my failures You won't walk out
+Your great love will lead me through
+You are the peace in my troubled sea, woah
+You are the peace in my troubled sea, yeah
+
+[Verse 2]
+In the silence, You won't let go
+In the questions, Your truth will hold
+Your great love will lead me through
+You are the peace in my troubled sea, woah
+You are the peace in my troubled sea, yeah
+
+[Chorus]
+My lighthouse, my lighthouse
+Shining in the darkness, I will follow You
+My lighthouse, my lighthouse
+I will trust the promise
+You will carry me safe to shore
+Safe to shore
+Safe to shore
+Safe to shore
+
+[Verse 3]
+I won't fear what tomorrow brings
+With each morning I'll rise and sing
+My God's love will lead me through
+You are the peace in my troubled sea, woah
+You are the peace in my troubled sea, yeah
+
+[Chorus]
+My lighthouse, my lighthouse
+Shining in the darkness, I will follow You
+My lighthouse, my lighthouse
+I will trust the promise
+You will carry me safe to shore
+Safe to shore
+Safe to shore
+Safe to shore
+
+[Bridge]
+Fire before us, You're the brightest
+You will lead us through the storms
+Fire before us, You're the brightest
+You will lead us through the storms
+
+[Bridge]
+Fire before us, You're the brightest
+You will lead us through the storms
+Fire before us, You're the brightest
+You will lead us through the storms
+
+[Chorus]
+My lighthouse, my lighthouse
+Shining in the darkness, I will follow You
+My lighthouse, my lighthouse
+I will trust the promise
+You will carry me safe to shore
+Safe to shore
+Safe to shore
+Safe to shore
+
+TITLE: I'm Clean (Washed)
+BY: English
+[Intro]
+# Intro with guitar, then all together (x2)
+I've been washed in the water
+Washed in the blood
+I'm as good as new
+Oh, hallelujah
+
+[Chorus]
+I've been washed in the water
+Washed in the blood
+All because of You
+Oh, hallelujah (let's go)
+
+[Verse 1]
+And I'm clean
+Sin was stained on me
+And shame was running deep
+Your love was spilled on Calvary
+Oh, hallelujah
+
+I'm clean
+And God, how can it be?
+I'm ransomed and redeemed
+I'm standing in Your victory
+Oh, hallelujah
+
+[Chorus]
+I've been washed in the water
+Washed in the blood
+I'm as good as new
+Oh, hallelujah
+I've been washed in the water
+Washed in the blood
+All because of You
+Oh, hallelujah
+
+[Verse 2]
+I'm clean
+It's not what I have done
+But what You've done for me
+You paid it all upon that tree
+Oh, hallelujah
+
+I'm clean
+Your love has overcome
+And Your mercy is supreme
+I'm dancing in Your victory
+Oh, hallelujah
+
+[Chorus]
+I've been washed in the water
+Washed in the blood
+I'm as good as new
+Oh, hallelujah
+I've been washed in the water
+Washed in the blood
+All because of You
+Oh, hallelujah
+
+[Chorus]
+# sing it again
+I've been washed in the water
+Washed in the blood
+I'm as good as new
+Oh, hallelujah
+I've been washed in the water
+And washed in the blood
+All because of You
+Oh, hallelujah
+
+TITLE: Deewana Main Yeshu Ka
+BY: Hindi
+Pre-Chorus:
+Deewana, main Yeshu ka
+Mere honton pe uska hi naam
+Deewana, main Yeshu ka
+Uske pyaar mein dooba hua
+
+Pre-Chorus:
+Deewana, main Yeshu ka
+Mere honton pe uska hi naam
+Deewana, main Yeshu ka
+Uske pyaar mein dooba
+Main khoya, main zinda rahun
+
+Chorus:
+# x2
+Yeshu ka aa aa aa aa,
+Main deewana aa aa aa aa
+Yeshu ka aa aa aa aa,
+Main deewana
+
+Verse 1:
+# x2
+Teri baaton ko sunta rahun,
+Apni manmaani ab na karun
+Ab na daaye, na baaye mudun,
+Tere pyaar mein dooba rahun
+Deewana, main Yeshu ka...
+
+Pre-Chorus:
+Deewana, main Yeshu ka
+Mere honton pe uska hi naam
+Deewana, main Yeshu ka
+Uske pyaar mein dooba
+Main khoya, main zinda rahun
+
+Chorus:
+# x2
+Yeshu ka aa aa aa aa,
+Main deewana aa aa aa aa
+Yeshu ka aa aa aa aa,
+Main deewana
+
+TITLE: Nachoonga Gaoonga
+BY: Hindi
+[Chorus]
+Nachoonga Gaoonga paglon ke samaan
+Hosh mein na rahoonga
+Mera Raaja hai mahaan
+Nachoonga Gaoonga paglon ke samaan
+Hosh mein na rahoonga
+Mera Raaja hai mahaan
+
+[Verse]
+Nachoonga, khoke apna swaabhimaan
+Are log kahe ise moorkhta
+Gaoonga, mera Raaja hai mahaan
+
+[Break]
+# music
+Hrrrr... hadibba
+# music
+
+[Chorus]
+Nachoonga Gaoonga paglon ke samaan
+Hosh mein na rahoonga
+Mera Raaja hai mahaan
+Nachoonga Gaoonga paglon ke samaan
+Hosh mein na rahoonga
+Mera Raaja hai mahaan
+
+[Verse]
+Nachoonga, khoke apna swaabhimaan
+Are log kahe ise moorkhta
+Gaoonga, mera Raaja hai mahaan
+Nachoonga, khoke apna swaabhimaan
+Are log kahe ise moorkhta
+Gaoonga, mera Raaja hai mahaan
+
+[Tag]
+# x4
+Na na na na na na, hey
+Na na na na na na, hey
+
+[Verse]
+Nachoonga, khoke apna swaabhimaan
+Log kahe ise moorkhta
+Gaoonga, mera Raaja hai mahaan
+Nachoonga, khoke apna swaabhimaan
+Log kahe ise moorkhta
+Gaoonga, mera Raaja hai mahaan
+
+[Ending]
+# x4
+Nachoonga, paglon ke samaan
+Gaoonga, mera Raaja hai mahaan
+Nachoonga, paglon ke samaan
+Gaoonga, mera Raaja hai mahaan
+
+TITLE: Sthuthippin Sthuthippin
+BY: Malayalam
+[Verse 1]
+Sthuthippin sthuthippin ennum sthuthichiduvin
+Yeshu raajadhi raajavine
+Ee paarthalathil srushty Karthanavan
+Ente ullathil vannathinal
+
+[Chorus]
+Aa aanandhame paramaanandhame
+Ithu swargeeya santhoshame
+Ee paarthalathin srushty Karthanavan
+Ente ullathil vannathinal
+
+[Verse 2]
+Avan varunna naalil ente karam pidichu
+Thante maarvodanachidume
+Aa samoohamathil annu karthanumay
+Aarthu khoshikkum santhoshathal
+
+[Chorus]
+Aa aanandhame paramaanandhame
+Ithu swargeeya santhoshame
+Ee paarthalathin srushty Karthanavan
+Ente ullathil vannathinal
+
+[Verse 3]
+En paapangale muttum kazhukiduvin
+Than jeevane nalkiyavan
+Veendum vannidume meghavaahanathil
+Koda kodi than dhootharumay
+
+[Chorus]
+Aa aanandhame paramaanandhame
+Ithu swargeeya santhoshame
+Ee paarthalathin srushty Karthanavan
+Ente ullathil vannathinal

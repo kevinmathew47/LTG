@@ -1,0 +1,671 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Songbook · Let's Talk GFC</title>
+<meta name="description" content="Songs for Let's Talk GFC — God, Faith & Conversations, Christos Mar Thoma Church Yuvajana Sakhyam, Kakkanad.">
+<meta name="theme-color" content="#0A86EE">
+<link rel="icon" href="assets/logo.png">
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Kanit:ital,wght@0,400;0,500;0,600;0,700;0,800;0,900;1,500;1,600;1,700;1,800;1,900&display=swap">
+<link rel="stylesheet" href="assets/gfc.css?v=10">
+<style>
+/* Songbook. Every page/slide is drawn by one painter (sky, pixel clouds, birds, LET'S TALK GFC),
+   so the flipbook, the PDF, Present mode and the PPT look the same. */
+:root{--f-display:"Kanit","Arial Black",system-ui,sans-serif;--f-body:"Kanit",system-ui,-apple-system,"Segoe UI",sans-serif;--f-pixel:var(--f-body);
+  --navy:#0B1838;--lime:#D8FF1F;--cyan:#33D4FF;--soft:#C9DBF7}
+body{font-family:var(--f-body);font-size:17px;background:#0A86EE}
+.container{position:relative;z-index:2;width:100%;max-width:1100px;margin:0 auto;padding-left:max(clamp(16px,3.2vw,40px),env(safe-area-inset-left,0px));padding-right:max(clamp(16px,3.2vw,40px),env(safe-area-inset-right,0px))}
+.otext{font-family:var(--f-display);font-weight:900;font-style:italic}
+.otext::before{-webkit-text-stroke:.16em var(--navy);text-shadow:.03em .04em 0 #1A55E0,.06em .08em 0 #1A55E0,.08em .1em 0 var(--navy)}
+.ptext{font-family:var(--f-body);font-weight:600;color:#fff;text-shadow:0 2px 0 var(--navy),2px 0 0 var(--navy),-2px 0 0 var(--navy),0 -1px 0 var(--navy),2px 3px 0 var(--navy)}
+
+/* nav */
+/* full-width top bar; on scroll it folds into a centred title badge that opens a Register menu */
+.topbar{position:fixed;top:0;left:0;right:0;z-index:30;padding-top:env(safe-area-inset-top,0px);pointer-events:none}
+.topbar .bar{display:flex;align-items:center;gap:18px;padding-block:10px;padding-left:max(clamp(16px,3.2vw,56px),env(safe-area-inset-left,0px));padding-right:calc(max(clamp(16px,3.2vw,56px),env(safe-area-inset-right,0px)) + 168px);
+  background:linear-gradient(#0A86EE,rgba(10,134,238,0));transition:opacity .25s,transform .25s;pointer-events:auto}
+.tb-brand{display:flex;align-items:center;gap:14px;text-decoration:none;color:#fff}
+.tb-brand img{width:54px;filter:drop-shadow(0 3px 0 rgba(11,24,56,.35))}
+.mini-title{display:flex;flex-direction:column;align-items:flex-start;line-height:.8;transform:rotate(-4deg) skewX(-5deg)}
+.mini-title .otext{--fs:28px}
+.mini-title .otext.lime{--fs:42px;margin-top:2px}
+.mini-title .otext::before{-webkit-text-stroke:.17em var(--navy);text-shadow:.04em .06em 0 #1A55E0,.07em .1em 0 var(--navy)}
+.tb-label{font:700 16px var(--f-body);color:#fff;text-shadow:0 2px 0 var(--navy);letter-spacing:.14em}
+.tb-right{margin-left:auto;display:flex;align-items:center;gap:14px}
+.tb-cd{font:700 20px var(--f-body);color:var(--yellow);text-shadow:2px 2px 0 var(--navy);font-variant-numeric:tabular-nums;white-space:nowrap}
+.tb-pill{font:600 15px var(--f-body);background:var(--yellow);color:var(--navy);padding:8px 12px;white-space:nowrap}
+.topbar .btn .in{padding:11px 18px;font-size:17px}
+@media (max-width:1300px){.tb-pill{display:none}}
+@media (max-width:1100px){.tb-label{display:none}}
+@media (max-width:900px){.tb-cd{display:none}}
+@media (max-width:760px){.tb-right .donate{display:none}}
+.donate .in{gap:8px}.donate .hrt{width:16px;height:16px;color:#FF5FB7}
+@media (max-width:560px){.topbar .bar{padding-right:calc(max(16px,env(safe-area-inset-right,0px)) + 92px)}.tb-cd{display:none}.tb-brand img{width:44px}.mini-title .otext{--fs:22px}.mini-title .otext.lime{--fs:32px}}
+.topbar.compact .bar{opacity:0;transform:translateY(-14px);pointer-events:none}
+@media (max-width:380px){.topbar .bar{gap:10px;padding-left:max(14px,env(safe-area-inset-left,0px));padding-right:calc(max(16px,env(safe-area-inset-right,0px)) + 92px)}.tb-brand{gap:8px}.tb-brand img{width:38px}.mini-title .otext{--fs:19px}.mini-title .otext.lime{--fs:28px}.topbar .btn .in{padding:9px 12px;font-size:15px}
+  .container{padding-left:max(14px,env(safe-area-inset-left,0px));padding-right:max(14px,env(safe-area-inset-right,0px))}.reg .form .in{padding:18px}.chip2 .in{font-size:15px;padding:9px 12px}}
+
+
+
+/* ---------- glass: dynamic-island style pill ---------- */
+.glass{background:rgba(9,20,48,.5);-webkit-backdrop-filter:blur(18px) saturate(170%);backdrop-filter:blur(18px) saturate(170%);
+  border:1px solid rgba(255,255,255,.24);box-shadow:0 10px 30px rgba(5,14,40,.32),inset 0 1px 0 rgba(255,255,255,.2)}
+@supports not ((backdrop-filter:blur(1px)) or (-webkit-backdrop-filter:blur(1px))){.glass{background:rgba(9,20,48,.88)}}
+
+/* scroll island: exactly centred, drops in when the top bar folds, expands to show Register */
+.island{position:fixed;top:calc(12px + env(safe-area-inset-top,0px));left:50%;z-index:31;min-width:212px;border-radius:30px;overflow:hidden;
+  transform:translate(-50%,-150%);opacity:0;pointer-events:none;
+  transition:transform .5s cubic-bezier(.2,.9,.25,1.15),opacity .3s,border-radius .35s}
+.topbar.compact ~ .island{transform:translate(-50%,0);opacity:1;pointer-events:auto}
+.island-btn{display:flex;align-items:center;justify-content:center;gap:12px;width:100%;border:0;background:none;color:#fff;cursor:pointer;padding:7px 22px 9px}
+.island .mini-title{align-items:center;transform:rotate(-4deg)}.island .mini-title .otext{--fs:18px}.island .mini-title .otext.lime{--fs:27px}
+.island .caret{font:700 11px var(--f-body);color:var(--lime);transition:transform .3s}
+.island.open .caret{transform:rotate(180deg)}
+.island-btn:focus-visible{outline:2px solid var(--yellow);outline-offset:-5px;border-radius:30px}
+.island-menu{display:grid;grid-template-rows:0fr;transition:grid-template-rows .35s cubic-bezier(.2,.9,.25,1)}
+.island-menu>div{overflow:hidden;min-height:0;display:flex;flex-direction:column;align-items:center;gap:8px;padding:0 16px;opacity:0;transition:opacity .2s,padding .35s}
+.island.open{border-radius:26px}
+.island.open .island-menu{grid-template-rows:1fr}
+.island.open .island-menu>div{opacity:1;padding:2px 16px 14px}
+.island-menu .btn .in{padding:11px 22px;font-size:16px}
+.island-menu small{font:500 14px var(--f-body);color:rgba(255,255,255,.88);white-space:nowrap}
+
+/* vibe: glass pill in the top-right of the nav */
+.dock{position:fixed;top:calc(16px + env(safe-area-inset-top,0px));right:max(clamp(16px,3.2vw,56px),env(safe-area-inset-right,0px));z-index:35;display:flex;flex-direction:column;align-items:flex-end;gap:8px}
+.vibe{display:inline-flex;align-items:center;justify-content:center;gap:10px;min-width:150px;height:46px;padding:0 18px;border-radius:999px;color:#fff;
+  font:italic 900 16px/1 var(--f-display);text-transform:uppercase;letter-spacing:.02em;cursor:pointer;transition:border-color .25s,box-shadow .25s,transform .15s}
+.vibe .in{display:contents}
+.vibe:hover{transform:translateY(-1px)} .vibe:active{transform:scale(.97)}
+.vibe svg{width:20px;height:20px;flex:none}
+.vibe[aria-pressed="true"]{border-color:rgba(216,255,31,.75);box-shadow:0 0 0 1px rgba(216,255,31,.3),0 10px 30px rgba(5,14,40,.32),inset 0 1px 0 rgba(255,255,255,.2)}
+.vibe[aria-pressed="true"] svg,.vibe[aria-pressed="true"] .eq{color:var(--lime)}
+.vibe:focus-visible{outline:2px solid var(--yellow);outline-offset:3px}
+.eq{display:inline-flex;gap:2px;align-items:flex-end;height:14px}
+.eq i{width:3px;height:4px;background:currentColor;border-radius:1px}
+.vibe[aria-pressed="true"]:not(.waiting) .eq i{animation:eq 1s steps(4) infinite}
+.eq i:nth-child(2){animation-delay:-.3s}.eq i:nth-child(3){animation-delay:-.6s}
+@keyframes eq{0%,100%{height:4px}50%{height:14px}}
+.vibe.waiting{animation:vpulse 1.6s ease-in-out infinite}
+@keyframes vpulse{50%{box-shadow:0 0 0 5px rgba(216,255,31,.35),0 10px 30px rgba(5,14,40,.32)}}
+.vibeTip{font:500 14px/1.35 var(--f-body);color:#fff;border-radius:16px;padding:8px 12px;max-width:240px;text-align:right;transition:opacity .4s,visibility .4s}
+.vibeTip.gone{opacity:0;visibility:hidden;pointer-events:none}
+@media (max-width:560px){.vibe{min-width:0;height:44px;padding:0 14px;gap:8px}.vibe .lbl{display:none}.vibeTip{max-width:210px;font-size:13px}}
+@media (max-width:360px){.tb-right .btn{display:none}.island{min-width:190px}}
+.dock{transition:opacity .2s,visibility .2s}
+@media (max-width:560px){.island{min-width:0}.island-btn{padding:7px 16px 9px;gap:8px}.island.open{min-width:212px}html.island-open .dock{opacity:0;visibility:hidden}}
+@media (max-width:360px){.island{min-width:0}.island-btn{padding:7px 12px 9px;gap:6px}.island .mini-title .otext{--fs:16px}.island .mini-title .otext.lime{--fs:24px}.vibe{padding:0 12px;gap:0}.vibe .eq{display:none}}
+@media (prefers-reduced-motion:reduce){.vibe.waiting,.vibe .eq i{animation:none!important}.island{transition:opacity .2s}}
+/* phone: burger menu (Register + Vibe) replaces the separate buttons */
+.burger,.bmenu{display:none}
+@media (max-width:560px){
+  .dock,.tb-right .btn{display:none!important}
+  .topbar .bar{padding-right:calc(max(16px,env(safe-area-inset-right,0px)) + 62px)!important}
+  .burger{display:flex;position:fixed;top:calc(16px + env(safe-area-inset-top,0px));right:max(16px,env(safe-area-inset-right,0px));z-index:36;
+    width:48px;height:48px;border-radius:50%;flex-direction:column;align-items:center;justify-content:center;gap:5px;cursor:pointer;color:#fff;padding:0}
+  .burger span{display:block;width:20px;height:2.5px;border-radius:2px;background:currentColor;transition:transform .25s,opacity .2s}
+  .burger[aria-expanded="true"] span:nth-child(1){transform:translateY(7.5px) rotate(45deg)}
+  .burger[aria-expanded="true"] span:nth-child(2){opacity:0}
+  .burger[aria-expanded="true"] span:nth-child(3){transform:translateY(-7.5px) rotate(-45deg)}
+  .burger .dot{position:absolute;top:9px;right:9px;width:9px;height:9px;border-radius:50%;background:var(--lime);box-shadow:0 0 0 2px var(--navy);opacity:0;transition:opacity .2s}
+  .burger.waiting .dot,.burger.playing .dot{opacity:1}
+  .burger.waiting .dot{animation:dotp 1.4s ease-in-out infinite}
+  @keyframes dotp{50%{transform:scale(1.35)}}
+  .burger:focus-visible{outline:2px solid var(--yellow);outline-offset:3px}
+  .bmenu{display:flex;position:fixed;top:calc(74px + env(safe-area-inset-top,0px));right:max(16px,env(safe-area-inset-right,0px));z-index:36;
+    width:min(300px,calc(100vw - 32px));flex-direction:column;gap:12px;padding:16px;border-radius:24px;
+    opacity:0;visibility:hidden;transform:translateY(-8px) scale(.97);transform-origin:top right;transition:opacity .2s,transform .25s cubic-bezier(.2,.9,.25,1.15),visibility .2s}
+  .bmenu.open{opacity:1;visibility:visible;transform:none}
+  .bmenu .btn,.bmenu .btn .in{width:100%}
+  .bmenu .btn .in{padding:14px 18px;font-size:18px}
+  .bmVibe{display:flex;align-items:center;gap:12px;width:100%;padding:12px 14px;border-radius:16px;border:1px solid rgba(255,255,255,.22);background:rgba(255,255,255,.06);color:#fff;cursor:pointer;text-align:left;font:inherit}
+  .bmVibe svg{width:22px;height:22px;flex:none}
+  .bmVibe .t{display:flex;flex-direction:column;gap:1px;flex:1;min-width:0}
+  .bmVibe .t b{font:italic 900 16px/1.1 var(--f-display);text-transform:uppercase}
+  .bmVibe .t small{font:500 13px/1.3 var(--f-body);color:rgba(255,255,255,.8)}
+  .bmVibe .sw{flex:none;width:44px;height:26px;border-radius:13px;background:rgba(255,255,255,.25);position:relative;transition:background .2s}
+  .bmVibe .sw::after{content:"";position:absolute;top:3px;left:3px;width:20px;height:20px;border-radius:50%;background:#fff;transition:transform .2s}
+  .bmVibe[aria-pressed="true"]{border-color:rgba(216,255,31,.6)}
+  .bmVibe[aria-pressed="true"] svg{color:var(--lime)}
+  .bmVibe[aria-pressed="true"] .sw{background:var(--lime)}
+  .bmVibe[aria-pressed="true"] .sw::after{transform:translateX(18px);background:var(--navy)}
+  .bmVibe:focus-visible{outline:2px solid var(--yellow);outline-offset:2px}
+  .bmLinks{display:flex;gap:8px}
+  .bmLinks a{flex:1;text-align:center;padding:10px 8px;border-radius:14px;background:rgba(255,255,255,.08);color:#fff;text-decoration:none;font:600 14px var(--f-body)}
+  .bmLinks a:active{background:rgba(255,255,255,.16)}
+  .bmenu .when{font:500 13px var(--f-body);color:rgba(255,255,255,.8);text-align:center}
+  html.island-open .burger{opacity:1;visibility:visible}
+}
+/* songbook-specific nav tweaks */
+.tb-right .btn .in{padding:10px 15px;font-size:16px}
+@media (max-width:1000px){.tb-right .back{display:none}}
+@media (max-width:900px){.tb-right .btn .in{padding:9px 11px;font-size:14.5px}.topbar .bar{gap:12px}}
+.bmLinks a{white-space:nowrap}
+.bmActs{display:grid;grid-template-columns:1fr 1fr;gap:10px;width:100%}
+.bmenu .bmActs .btn,.bmenu .bmActs .btn .in{width:100%}
+.bmenu .bmActs .btn .in{justify-content:center;padding:13px 8px;font-size:16px;white-space:nowrap}
+/* flipbook */
+.stage{position:relative;z-index:2;display:grid;grid-template-columns:auto auto auto;grid-template-areas:"prev book next" ". meta .";
+  justify-content:center;align-items:center;column-gap:clamp(10px,2vw,26px);row-gap:10px;
+  padding:calc(88px + env(safe-area-inset-top,0px)) 16px 18px;min-height:100svh;align-content:start}
+.stage .prev{grid-area:prev}.stage .next{grid-area:next}.stage .bookwrap{grid-area:book}
+.stage .meta{grid-area:meta;display:flex;flex-direction:column;align-items:center;gap:2px}
+.stage .side .in{padding:16px 14px;font-size:20px}
+@media (max-width:759px){.stage{grid-template-columns:auto 1fr auto;grid-template-areas:"book book book" "prev meta next";column-gap:10px;padding-top:calc(74px + env(safe-area-inset-top,0px))}
+  .stage .side .in{padding:11px 16px;font-size:16px}}
+.bookwrap{display:flex;justify-content:center;min-width:0}
+.book{position:relative;margin:0 auto}
+.pf{background:#1FA2F7;overflow:hidden}
+.pf img{display:block;width:100%;height:100%;pointer-events:none;user-select:none;-webkit-user-drag:none}
+.pf.--left::after{content:"";position:absolute;inset:0 0 0 auto;width:34px;background:linear-gradient(270deg,rgba(11,24,56,.38),transparent);pointer-events:none}
+.pf.--right::after{content:"";position:absolute;inset:0 auto 0 0;width:34px;background:linear-gradient(90deg,rgba(11,24,56,.38),transparent);pointer-events:none}
+.hot{position:absolute;background:none;border:0;padding:0;cursor:pointer;z-index:2}
+.hot:hover,.hot:focus-visible{outline:3px solid var(--lime);outline-offset:-3px}
+.hint{position:absolute;left:0;right:0;bottom:5.5%;text-align:center;font:700 14px var(--f-body);color:#fff;text-shadow:0 2px 0 var(--navy);animation:nudge 1.6s ease-in-out infinite;pointer-events:none}
+@keyframes nudge{50%{transform:translateX(6px)}}
+.num{font:700 16px var(--f-body);color:#fff;text-shadow:0 2px 0 var(--navy);min-width:90px;text-align:center;font-variant-numeric:tabular-nums}
+.tip{font:500 13px var(--f-body);color:#fff;text-shadow:0 2px 0 var(--navy);text-align:center}
+.empty{color:#fff;text-align:center;padding:30px;font-weight:600;text-shadow:0 2px 0 var(--navy)}
+.sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0)}
+
+/* present mode (projector) */
+.present{position:fixed;inset:0;z-index:60;background:#050C1F;display:flex;flex-direction:column;user-select:none}
+.present[hidden]{display:none}
+.present canvas{flex:1;min-height:0;width:100%;object-fit:contain}
+.present.blank canvas{visibility:hidden}
+.pbar{display:flex;align-items:center;gap:14px;padding:8px 14px;background:#0B1838;border-top:3px solid var(--lime);font:600 13px var(--f-body);color:var(--soft)}
+.pbar .sp{margin-left:auto}
+.pbar button{background:none;border:2px solid #2E58B8;color:#fff;font:600 13px var(--f-body);padding:5px 10px;cursor:pointer}
+.pbar button:hover{border-color:var(--lime)}
+@media (max-width:700px){.pbar .sp{display:none}.pbar button{margin-left:auto}}
+.present:fullscreen .pbar{opacity:0;transition:opacity .3s}.present:fullscreen .pbar:hover{opacity:1}
+@media (prefers-reduced-motion:reduce){.hint{animation:none}}
+footer{position:relative;z-index:2;background:var(--navy);border-top:3px solid var(--lime);padding-block:16px calc(16px + env(safe-area-inset-bottom,0px));color:var(--soft);font-size:15px;text-align:center}
+</style>
+<script src="config.js?v=8"></script>
+</head>
+<body>
+<canvas id="sky" aria-hidden="true"></canvas>
+<canvas id="fx" aria-hidden="true"></canvas>
+
+<nav class="topbar" id="topbar" aria-label="Main">
+  <div class="bar">
+    <a class="tb-brand" href="index.html"><img src="assets/logo.png" alt="Home">
+      <span class="mini-title" id="tbTitle" aria-label="Let's Talk GFC"><span class="otext" data-t="Let's Talk">Let's Talk</span><span class="otext lime" data-t="GFC">GFC</span></span></a>
+    <span class="tb-label">SONGBOOK</span>
+    <div class="tb-right">
+      <button class="btn px" type="button" data-act="present"><span class="in">▶ Present</span></button>
+      <button class="btn ghost px" type="button" data-act="pdf"><span class="in">⬇ PDF</span></button>
+      <button class="btn ghost px" type="button" data-act="ppt"><span class="in">⬇ PPT</span></button>
+      <a class="btn ghost px back" href="index.html"><span class="in">← Registration</span></a>
+    </div>
+  </div>
+</nav>
+<div class="island glass" id="badgeNav">
+  <button class="island-btn" id="badgeBtn" type="button" aria-expanded="false" aria-controls="badgeMenu" aria-label="Let's Talk GFC menu">
+    <span class="mini-title" aria-hidden="true"><span class="otext" data-t="Let's Talk">Let's Talk</span><span class="otext lime" data-t="GFC">GFC</span></span>
+  </button>
+  <div class="island-menu" id="badgeMenu"><div>
+    <button class="btn px" type="button" data-act="present" tabindex="-1"><span class="in">▶ Present</span></button>
+    <button class="btn ghost px" type="button" data-act="pdf" tabindex="-1"><span class="in">⬇ PDF songbook</span></button>
+    <a class="btn ghost px" href="index.html" tabindex="-1"><span class="in">← Registration</span></a>
+    <small>Fri 13 Nov · 6 PM · Kakkanad</small>
+  </div></div>
+</div>
+
+<main class="stage" id="top">
+  <h1 class="sr">Let's Talk GFC Songbook</h1>
+  <button class="btn ghost px side prev" type="button" id="prev" aria-label="Previous page"><span class="in">◀</span></button>
+  <div class="bookwrap" id="bookwrap"><div class="book" id="book" aria-live="polite"><div class="empty">Opening the songbook…</div></div></div>
+  <button class="btn px side next" type="button" id="next" aria-label="Next page"><span class="in">▶</span></button>
+  <div class="meta"><span class="num" id="num">–</span><span class="tip">Drag a page corner, tap a page, or use ← → keys</span></div>
+</main>
+<footer>Christos Mar Thoma Church Yuvajana Sakhyam · Let's Talk GFC · 13 Nov 2026</footer>
+
+<button class="burger glass" type="button" id="burgerBtn" aria-expanded="false" aria-controls="bmenu" aria-label="Open menu"><span></span><span></span><span></span><i class="dot" aria-hidden="true"></i></button>
+<div class="bmenu glass" id="bmenu" role="menu" aria-label="Menu">
+  <div class="bmActs">
+    <button class="btn px" type="button" data-act="present" role="menuitem"><span class="in">▶ Present</span></button>
+    <button class="btn ghost px" type="button" data-act="pdf" role="menuitem"><span class="in">⬇ PDF</span></button>
+  </div>
+  <button class="bmVibe" type="button" id="bmVibe" role="menuitemcheckbox" aria-pressed="false">
+    <svg viewBox="0 0 16 16" aria-hidden="true" shape-rendering="crispEdges"><path fill="currentColor" d="M5 1h6v1h2v1h1v2h1v6h-1v-5h-1V4h-1V3h-2V2H6v1H4v1H3v2H2v5H1V5h1V3h1V2h2z"/><path fill="currentColor" d="M1 9h4v6H2v-1H1zM11 9h4v5h-1v1h-3z"/></svg>
+    <span class="t"><b class="lbl">Vibe on</b><small>Music + sea breeze · earphones recommended</small></span>
+    <span class="sw" aria-hidden="true"></span>
+  </button>
+  <div class="bmLinks"><a href="index.html" role="menuitem">← Registration</a><a href="index.html#details" role="menuitem">Event details</a></div>
+  <div class="when">Fri 13 Nov 2026 · 6 PM · Kakkanad</div>
+</div>
+<div class="dock" id="dock">
+  <button class="vibe glass" type="button" id="vibeBtn" aria-pressed="false" aria-label="Background music and beach sounds">
+    <span class="in"><svg viewBox="0 0 16 16" aria-hidden="true" shape-rendering="crispEdges"><path fill="currentColor" d="M5 1h6v1h2v1h1v2h1v6h-1v-5h-1V4h-1V3h-2V2H6v1H4v1H3v2H2v5H1V5h1V3h1V2h2z"/><path fill="currentColor" d="M1 9h4v6H2v-1H1zM11 9h4v5h-1v1h-3z"/></svg><span class="lbl">Vibe on</span><span class="eq" aria-hidden="true"><i></i><i></i><i></i></span></span>
+  </button>
+  <div class="vibeTip glass" id="vibeTip">🎧 Tap anywhere to start the vibe · earphones recommended</div>
+</div>
+
+<div class="present" id="present" hidden>
+  <canvas id="slide" width="1920" height="1080" aria-live="polite"></canvas>
+  <div class="pbar"><span id="pPos"></span><span class="sp">← → or click · B = blank screen · Esc = exit</span><button type="button" id="pClose">✕ Close</button></div>
+</div>
+
+<script src="assets/ambient.js?v=7"></script>
+<script src="assets/gfc.js?v=10"></script>
+<script>
+(() => {
+const { $, $$, esc, toast, CFG } = GFC;
+GFC.Snd.on = false;
+GFC.initSky($("#sky"));
+
+/* ================= songs.txt ================= */
+const SECTION = /^((?:pre-?\s*chorus|chorus|verse\s*\d*|bridge|intro|outro|tag|ending|refrain|break)\b[^:]*):\s*$/i;
+function parse(txt) {
+  const out = []; let song = null, sec = null, lines = [], notes = [];
+  const flush = () => { if (song && (lines.length || notes.length)) song.blocks.push({ label: sec, lines, notes }); lines = []; notes = []; sec = null; };
+  for (const raw of txt.split(/\r?\n/)) {
+    const l = raw.trim(); let m;
+    if ((m = l.match(/^TITLE:\s*(.+)$/i))) { flush(); song = { title: m[1].trim(), by: "", blocks: [] }; out.push(song); continue; }
+    if (!song) continue;
+    if ((m = l.match(/^BY:\s*(.+)$/i)) && !song.blocks.length && !lines.length) { song.by = m[1].trim(); continue; }
+    if (l.startsWith("#")) { const n = l.replace(/^#+\s*/, ""); if (n) notes.push(n); continue; }
+    if ((m = l.match(/^\[(.+?)\]$/)) || (m = l.match(SECTION))) { flush(); sec = m[1].trim(); continue; }
+    if (!l) { if (lines.length) flush(); continue; }
+    lines.push(l);
+  }
+  flush();
+  out.forEach(s => s.blocks = s.blocks.filter(b => b.lines.length || b.notes.length));
+  return out;
+}
+const isChorus = b => /chorus|refrain/i.test(b.label || "");
+
+/* ================= painter: same art as the website ================= */
+const NAVY = "#0B1838", LIME = "#D8FF1F", CYAN = "#33D4FF", SOFT = "#C9DBF7", CHO = "#F4FFC2", BLUE = "#1A55E0";
+const CLOUDS = [
+  ["..........wwww..............", ".......wwwwwwwwww...........", "......wwwwwwwwwwww..wwww....", "....wwwwwwwwwwwwwwwwwwwwww..", "..wwwwwwwwwwwwwwwwwwwwwwwwww.", ".wwwwwwwwwwwwwwwwwwwwwwwwwwww", "wwwwwwwwwwwwwwwwwwwwwwwwwwwww", "wwwwwwwwwwwwwwwwwwwwwwwwwwwww", "sssssswwwwwwwwssssswwwwssssss", ".ssssssssssssssssssssssssss..", "...dddddddddddddddddddddd...."],
+  [".....wwww.......", "...wwwwwwww.ww..", "..wwwwwwwwwwwww.", ".wwwwwwwwwwwwwww", "wwwwwwwwwwwwwwww", "sssswwwwwwssssss", ".ssssssssssssss.", "..dddddddddddd.."],
+  ["............wwwww.........", "....www...wwwwwwwww.......", "..wwwwwwwwwwwwwwwwwww.ww..", ".wwwwwwwwwwwwwwwwwwwwwwwww", "wwwwwwwwwwwwwwwwwwwwwwwwww", "wwwwwwwwwwwwwwwwwwwwwwwwww", "sssssssswwwwwwwwsssssssss.", "..ssssssssssssssssssssss..", "....dddddddddddddddddd...."]
+];
+const BIRD = [["xx.......xx", "..xx...xx..", "....x.x....", ".....x....."], ["...........", "xxxx...xxxx", "....xxx....", ".....x....."]];
+const F = s => `${s} Kanit, Arial, sans-serif`;
+const rad = d => d * Math.PI / 180;
+function rng(a) { return () => { a |= 0; a = a + 0x6D2B79F5 | 0; let t = Math.imul(a ^ a >>> 15, 1 | a); t = t + Math.imul(t ^ t >>> 7, 61 | t) ^ t; return ((t ^ t >>> 14) >>> 0) / 4294967296; }; }
+function pix(g, rows, pal, x, y, P) { x = Math.round(x); y = Math.round(y); rows.forEach((r, j) => { for (let i = 0; i < r.length; i++) { const c = pal[r[i]]; if (c) { g.fillStyle = c; g.fillRect(x + i * P, y + j * P, P, P); } } }); }
+function sky(g, W, H, seed, o = {}) {
+  const R = rng(seed * 7919 + 13);
+  const gr = g.createLinearGradient(0, 0, 0, H); gr.addColorStop(0, "#0A86EE"); gr.addColorStop(.6, "#1FA2F7"); gr.addColorStop(1, "#5CC6FF");
+  g.fillStyle = gr; g.fillRect(0, 0, W, H);
+  const base = Math.max(4, Math.round(Math.min(W, H) / 150));
+  g.fillStyle = "rgba(255,255,255,.85)";
+  for (let i = 0; i < (o.stars ?? 10); i++) { const x = R() * W, y = R() * H * .7, p = Math.max(2, base >> 1); g.fillRect(x, y - p, p, p * 3); g.fillRect(x - p, y, p * 3, p); }
+  const n = o.clouds ?? 4;
+  for (let i = 0; i < n; i++) {
+    const rows = CLOUDS[(R() * 3) | 0], p = Math.max(3, Math.round(base * (.75 + R() * .7))), cw = rows[0].length * p;
+    const x = i % 2 ? W - cw * (.35 + R() * .7) : -cw * .3 + R() * cw * .5;
+    pix(g, rows, { w: "#FFFFFF", s: "#D6ECFF", d: "#A9D2F5" }, x, H * (.02 + .9 * (i + R() * .5) / n), p);
+  }
+  for (let i = 0; i < (o.birds ?? 4); i++) { const p = Math.max(2, Math.round(base * .6)); pix(g, BIRD[R() < .5 ? 0 : 1], { x: NAVY }, W * (.1 + R() * .8), H * (.02 + R() * (o.birdBand ?? .14)), p); }
+  const gh = Math.round(H * .011); g.fillStyle = NAVY; g.fillRect(0, H - gh * 2, W, gh * 2); g.fillStyle = LIME; g.fillRect(0, H - gh * 2, W, gh);
+}
+function otext(g, t, x, y, s, fill, align = "left") {
+  g.save(); g.font = F(`italic 900 ${s}px`); g.textAlign = align; g.lineJoin = "round"; t = t.toUpperCase();
+  const lay = (dx, dy, c) => { g.strokeStyle = c; g.lineWidth = s * .3; g.strokeText(t, x + dx * s, y + dy * s); g.fillStyle = c; g.fillText(t, x + dx * s, y + dy * s); };
+  lay(.08, .1, NAVY); lay(.06, .08, BLUE); lay(.03, .04, BLUE);
+  g.strokeStyle = NAVY; g.lineWidth = s * .3; g.strokeText(t, x, y); g.fillStyle = fill; g.fillText(t, x, y); g.restore();
+}
+function lockup(g, x, y, s, align = "left") {
+  g.save(); g.translate(x, y); g.rotate(rad(-4)); g.transform(1, 0, Math.tan(rad(-5)), 1, 0, 0);
+  otext(g, "Let's Talk", 0, 0, s, "#FFFFFF", align); otext(g, "GFC", align === "center" ? 0 : s * .02, s * 1.32, s * 1.5, LIME, align); g.restore();
+}
+function ptext(g, t, x, y, font, fill = "#FFFFFF", align = "left") {
+  g.save(); g.font = F(font); g.textAlign = align; g.fillStyle = NAVY;
+  for (const [dx, dy] of [[0, 3], [2, 0], [-2, 0], [0, -2], [2, 4]]) g.fillText(t, x + dx, y + dy);
+  g.fillStyle = fill; g.fillText(t, x, y); g.restore();
+}
+function chip(g, t, x, y, size, bg = LIME, fg = NAVY, o = {}) {
+  g.save(); g.font = F(o.font || `italic 800 ${size}px`); if (o.ls) g.letterSpacing = o.ls + "px";
+  const w = g.measureText(t).width + size * 1.2, h = size * 1.75, sh = o.sh ?? Math.round(size * .18);
+  if (o.align === "center") x -= w / 2; if (o.align === "right") x -= w;
+  if (sh) { g.fillStyle = NAVY; g.fillRect(x + sh, y + sh, w, h); }
+  g.fillStyle = bg; g.fillRect(x, y, w, h); g.fillStyle = fg; g.textBaseline = "middle"; g.fillText(t, x + size * .6, y + h / 2 + size * .04); g.restore();
+  return { w, h };
+}
+function stepPath(g, x, y, w, h, s) {
+  const p = [[x + 2 * s, y], [x + w - 2 * s, y], [x + w - 2 * s, y + s], [x + w - s, y + s], [x + w - s, y + 2 * s], [x + w, y + 2 * s], [x + w, y + h - 2 * s], [x + w - s, y + h - 2 * s], [x + w - s, y + h - s], [x + w - 2 * s, y + h - s], [x + w - 2 * s, y + h], [x + 2 * s, y + h], [x + 2 * s, y + h - s], [x + s, y + h - s], [x + s, y + h - 2 * s], [x, y + h - 2 * s], [x, y + 2 * s], [x + s, y + 2 * s], [x + s, y + s], [x + 2 * s, y + s]];
+  g.beginPath(); p.forEach(([a, b], i) => i ? g.lineTo(a, b) : g.moveTo(a, b)); g.closePath();
+}
+function panel(g, x, y, w, h, s = 10) {
+  g.save();
+  stepPath(g, x + s, y + s, w, h, s); g.fillStyle = "rgba(11,24,56,.45)"; g.fill();
+  stepPath(g, x, y, w, h, s); g.fillStyle = "rgba(11,24,56,.94)"; g.fill();
+  g.save(); g.clip(); g.strokeStyle = "rgba(51,212,255,.07)"; g.lineWidth = 1.5;
+  for (let i = x; i < x + w; i += 36) { g.beginPath(); g.moveTo(i, y); g.lineTo(i, y + h); g.stroke(); }
+  for (let j = y; j < y + h; j += 36) { g.beginPath(); g.moveTo(x, j); g.lineTo(x + w, j); g.stroke(); }
+  g.restore(); stepPath(g, x, y, w, h, s); g.lineWidth = s * .6; g.strokeStyle = LIME; g.stroke(); g.restore();
+}
+function wrap(g, text, font, maxW) {
+  g.font = F(font); const out = []; let cur = "";
+  for (const w of text.split(/\s+/)) { const t = cur ? cur + " " + w : w; if (g.measureText(t).width > maxW && cur) { out.push(cur); cur = w; } else cur = t; }
+  if (cur) out.push(cur); return out;
+}
+let LOGO = null;
+const logoAt = (g, x, y, h) => { const w = h * LOGO.naturalWidth / LOGO.naturalHeight; g.drawImage(LOGO, x, y, w, h); return w; };
+const ctx = () => { const c = document.createElement("canvas"); return c.getContext("2d"); };
+const MG = ctx();
+
+/* ================= book pages (1000 × 1400) ================= */
+const PW = 1000, PH = 1400, IX = 96, IW = 808, TOP = 250, BOT = 1252;
+const T = { title: "italic 900 54px", by: "600 28px", line: "500 36px", lineC: "600 36px", note: "italic 500 26px", lbl: "700 22px" };
+function headH(s, cont) { const n = wrap(MG, s.title.toUpperCase(), T.title, IW - 100).length; return Math.max(80, n * 60 + 6) + (s.by || cont ? 38 : 0) + 34; }
+function blockItems(b) { // a block may be split if it is very long
+  const lines = b.lines.flatMap(l => wrap(MG, l, isChorus(b) ? T.lineC : T.line, IW));
+  return { b, lines, h: (b.label ? 58 : 0) + b.notes.length * 38 + lines.length * 50 + 30 };
+}
+function layout(songs) {
+  const pages = [{ kind: "cover" }, { kind: "toc" }];
+  songs.forEach((s, i) => {
+    let page = { kind: "song", song: s, n: i + 1, cont: false, items: [] }, y = TOP + headH(s, false);
+    for (const b of s.blocks) {
+      const it = blockItems(b);
+      if (y + it.h > BOT && page.items.length) { pages.push(page); page = { kind: "song", song: s, n: i + 1, cont: true, items: [] }; y = TOP + headH(s, true); }
+      page.items.push(it); y += it.h;
+    }
+    pages.push(page); s.page = pages.indexOf(pages.find(p => p.song === s)) + 1;
+  });
+  if (pages.length % 2) pages.push({ kind: "notes" });
+  pages.push({ kind: "back" });
+  return pages;
+}
+function frame(g, seed, pageNo) {
+  sky(g, PW, PH, seed, { clouds: 5, birds: 4, birdBand: .08 });
+  logoAt(g, 46, 30, 136);
+  lockup(g, 182, 92, 40);
+  chip(g, "SONGBOOK", 948, 58, 26, LIME, NAVY, { align: "right" });
+  panel(g, 46, 196, 908, 1100, 10);
+  ptext(g, `Let's Talk GFC · Songbook · ${pageNo}`, PW / 2, 1360, "600 24px", "#FFFFFF", "center");
+}
+function drawSongHead(g, s, n, cont, y) {
+  g.fillStyle = LIME; g.fillRect(IX, y, 74, 74); g.fillStyle = NAVY; g.font = F("italic 900 44px"); g.textAlign = "center"; g.fillText(n, IX + 37, y + 54); g.textAlign = "left";
+  const tl = wrap(g, s.title.toUpperCase(), T.title, IW - 100);
+  g.fillStyle = "#FFFFFF"; g.font = F(T.title); tl.forEach((l, i) => g.fillText(l, IX + 100, y + 52 + i * 60));
+  let yy = y + Math.max(80, tl.length * 60 + 6);
+  if (s.by || cont) {
+    g.font = F(T.by); g.fillStyle = CYAN; g.fillText(s.by, IX + 100, yy + 22);
+    if (cont) { const w = s.by ? g.measureText(s.by + "  ").width : 0; g.fillStyle = SOFT; g.font = F("500 26px"); g.fillText(`${s.by ? "· " : ""}continued`, IX + 100 + w, yy + 22); }
+    yy += 38;
+  }
+  g.save(); g.strokeStyle = "#2E58B8"; g.lineWidth = 3; g.setLineDash([12, 9]); g.beginPath(); g.moveTo(IX, yy + 14); g.lineTo(IX + IW, yy + 14); g.stroke(); g.restore();
+  return yy + 34;
+}
+function drawPage(p, i, total) {
+  const c = document.createElement("canvas"); c.width = PW; c.height = PH; const g = c.getContext("2d"); p.hot = [];
+  if (p.kind === "cover") {
+    sky(g, PW, PH, 1, { clouds: 7, birds: 7, stars: 16, birdBand: .3 });
+    const lh = 300, lw = LOGO.naturalWidth * lh / LOGO.naturalHeight; logoAt(g, PW / 2 - lw / 2, 110, lh);
+    lockup(g, PW / 2, 600, 104, "center");
+    chip(g, "SONGBOOK", PW / 2, 830, 50, LIME, NAVY, { align: "center" });
+    ptext(g, "God, Faith & Conversations", PW / 2, 1010, "italic 800 42px", "#FFFFFF", "center");
+    ptext(g, "Christos Mar Thoma Church Yuvajana Sakhyam", PW / 2, 1080, "600 30px", "#FFFFFF", "center");
+    ptext(g, "Friday, 13 November 2026 · Kakkanad", PW / 2, 1126, "600 30px", "#FFFFFF", "center");
+  } else if (p.kind === "back") {
+    sky(g, PW, PH, 77, { clouds: 7, birds: 6, stars: 14, birdBand: .3 });
+    const lh = 220, lw = LOGO.naturalWidth * lh / LOGO.naturalHeight; logoAt(g, PW / 2 - lw / 2, 260, lh);
+    lockup(g, PW / 2, 640, 80, "center");
+    ptext(g, "Thank you for singing with us!", PW / 2, 900, "italic 800 44px", "#FFFFFF", "center");
+    ptext(g, "Christos Mar Thoma Church Yuvajana Sakhyam", PW / 2, 970, "600 28px", "#FFFFFF", "center");
+    ptext(g, "Kakkanad · 13 Nov 2026", PW / 2, 1014, "600 28px", "#FFFFFF", "center");
+  } else if (p.kind === "notes") {
+    frame(g, i + 3, i + 1);
+    otext(g, "Sing it loud!", PW / 2, 700, 72, LIME, "center");
+    ptext(g, "God, Faith & Conversations", PW / 2, 790, "italic 800 38px", "#FFFFFF", "center");
+  } else if (p.kind === "toc") {
+    frame(g, 2, i + 1);
+    otext(g, "Contents", IX, 320, 64, "#FFFFFF");
+    songs.forEach((s, k) => {
+      const y = 380 + k * 150, h = 128;
+      g.fillStyle = "#0E2150"; g.fillRect(IX, y, IW, h); g.strokeStyle = "#2E58B8"; g.lineWidth = 3; g.strokeRect(IX, y, IW, h);
+      g.fillStyle = LIME; g.fillRect(IX + 24, y + 30, 68, 68); g.fillStyle = NAVY; g.font = F("italic 900 40px"); g.textAlign = "center"; g.fillText(k + 1, IX + 58, y + 79); g.textAlign = "left";
+      const t = wrap(g, s.title, "700 36px", IW - 270)[0];
+      g.fillStyle = "#FFFFFF"; g.font = F("700 36px"); g.fillText(t, IX + 118, y + 60);
+      g.fillStyle = SOFT; g.font = F("500 26px"); g.fillText(s.by, IX + 118, y + 98);
+      g.fillStyle = CYAN; g.font = F("600 28px"); g.textAlign = "right"; g.fillText(`p. ${s.page}`, IX + IW - 26, y + 76); g.textAlign = "left";
+      p.hot.push({ x: IX, y, w: IW, h, go: s.page - 1, label: `${s.title}, page ${s.page}` });
+    });
+  } else {
+    frame(g, i + 3, i + 1);
+    let y = drawSongHead(g, p.song, p.n, p.cont, TOP - 8);
+    for (const it of p.items) {
+      const b = it.b, ch = isChorus(b);
+      if (b.label) { chip(g, b.label.toUpperCase(), IX, y, 22, ch ? LIME : "#16307A", ch ? NAVY : CYAN, { font: T.lbl, ls: 3, sh: 0 }); y += 58; }
+      b.notes.forEach(n => { g.font = F(T.note); g.fillStyle = SOFT; g.fillText("♪ " + n, IX, y + 26); y += 38; });
+      g.font = F(ch ? T.lineC : T.line); g.fillStyle = ch ? CHO : "#FFFFFF";
+      it.lines.forEach(l => { g.fillText(l, IX, y + 36); y += 50; });
+      y += 30;
+    }
+  }
+  return c;
+}
+
+/* ================= slides (1920 × 1080): Present + PPT ================= */
+const SW = 1920, SH = 1080;
+function makeSlides() {
+  const out = [{ kind: "cover" }];
+  songs.forEach((s, i) => {
+    out.push({ kind: "title", song: s, n: i + 1 });
+    s.blocks.filter(b => b.lines.length).forEach(b => {
+      const parts = Math.ceil(b.lines.length / 8), per = Math.ceil(b.lines.length / parts);
+      for (let k = 0; k < b.lines.length; k += per) out.push({ kind: "lyric", song: s, n: i + 1, label: b.label, chorus: isChorus(b), lines: b.lines.slice(k, k + per) });
+    });
+  });
+  return out;
+}
+function drawSlide(g, s, i) {
+  if (s.kind === "cover") {
+    sky(g, SW, SH, 101, { clouds: 7, birds: 8, stars: 18, birdBand: .25 });
+    const lh = 260, lw = LOGO.naturalWidth * lh / LOGO.naturalHeight; logoAt(g, SW / 2 - lw / 2, 60, lh);
+    lockup(g, SW / 2, 470, 104, "center");
+    chip(g, "SONGBOOK · GOD, FAITH & CONVERSATIONS", SW / 2, 730, 40, LIME, NAVY, { align: "center" });
+    ptext(g, "Christos Mar Thoma Church Yuvajana Sakhyam", SW / 2, 900, "600 38px", "#FFFFFF", "center");
+    ptext(g, "Friday, 13 November 2026 · Kakkanad", SW / 2, 954, "600 38px", "#FFFFFF", "center");
+    return;
+  }
+  sky(g, SW, SH, 200 + i, { clouds: 5, birds: 5, birdBand: .1 });
+  logoAt(g, 40, 26, 124); lockup(g, 168, 82, 38);
+  if (s.kind === "title") {
+    chip(g, `SONG ${s.n}`, SW / 2, 300, 44, LIME, NAVY, { align: "center" });
+    let size = 170, lines;
+    do { lines = wrap(g, s.song.title.toUpperCase(), `italic 900 ${size}px`, 1640); size -= 6; } while ((lines.length > 2 || lines.some(l => g.measureText(l).width > 1640)) && size > 70);
+    size += 6; const top = 560 - (lines.length - 1) * size * .5;
+    g.save(); g.translate(SW / 2, 0); g.rotate(rad(-3)); g.transform(1, 0, Math.tan(rad(-5)), 1, 0, 0);
+    lines.forEach((l, k) => otext(g, l, 0, top + k * size * 1.05, size, LIME, "center")); g.restore();
+    if (s.song.by) ptext(g, s.song.by, SW / 2, 800, "600 48px", "#FFFFFF", "center");
+    return;
+  }
+  chip(g, `${s.n} · ${s.song.title.toUpperCase()}`, SW - 44, 56, 30, LIME, NAVY, { align: "right" });
+  panel(g, 130, 200, 1660, 790, 12);
+  if (s.label) chip(g, s.label.toUpperCase(), SW / 2, 240, 28, s.chorus ? LIME : "#16307A", s.chorus ? NAVY : CYAN, { font: "700 28px", ls: 5, sh: 0, align: "center" });
+  const boxT = s.label ? 320 : 260, boxH = 950 - boxT;
+  let size = 76, lines;
+  // shrink first so each sung line stays on one line; only wrap when it would get too small
+  for (; size >= 50; size -= 2) { g.font = F(`700 ${size}px`); if (s.lines.every(l => g.measureText(l).width <= 1520) && s.lines.length * size * 1.3 <= boxH) break; }
+  if (size < 50) for (size = 64; size >= 34; size -= 2) { lines = s.lines.flatMap(l => wrap(g, l, `700 ${size}px`, 1520)); if (lines.length * size * 1.3 <= boxH) break; }
+  else lines = s.lines;
+  g.font = F(`700 ${size}px`); g.textAlign = "center"; g.fillStyle = s.chorus ? CHO : "#FFFFFF";
+  const y0 = boxT + (boxH - lines.length * size * 1.3) / 2 + size * 1.0;
+  lines.forEach((l, k) => g.fillText(l, SW / 2, y0 + k * size * 1.3)); g.textAlign = "left";
+}
+
+/* ================= flipbook UI ================= */
+const loadScript = src => new Promise((res, rej) => { const s = document.createElement("script"); s.src = src; s.onload = res; s.onerror = () => rej(new Error("Couldn't load the download tool. Check the internet connection.")); document.head.appendChild(s); });
+let songs = [], pages = [], imgs = [], idx = 0, flip = null;
+const pageText = p => p.kind === "song" ? `${p.song.title}. ` + p.items.map(it => it.lines.join(" / ")).join(" / ") : p.kind === "toc" ? "Contents" : p.kind === "back" ? "Back cover" : p.kind === "notes" ? "Sing it loud" : "Let's Talk GFC Songbook cover";
+function bookSize() {
+  const spread = innerWidth >= 760;                    // two pages side by side on laptops / tablets
+  const top = innerWidth >= 760 ? 88 : 74, below = spread ? 50 : 112;
+  const availW = innerWidth - (spread ? 2 * 16 + 2 * 80 : 32), maxH = Math.max(380, innerHeight - top - below);
+  let w = Math.min(640, spread ? availW / 2 : availW, maxH / 1.4);
+  return { w: Math.floor(w), h: Math.floor(w * 1.4), spread };
+}
+function build() {
+  pages = layout(songs);
+  imgs = pages.map((p, i) => drawPage(p, i, pages.length).toDataURL("image/jpeg", .92));
+  return mountBook();
+}
+let lastSpread = null;
+async function mountBook() {
+  if (!window.St) await loadScript("https://cdn.jsdelivr.net/npm/page-flip@2.0.7/dist/js/page-flip.browser.js");
+  const keep = flip ? flip.getCurrentPageIndex() : idx;
+  if (flip) { try { flip.destroy(); } catch (e) {} flip = null; }
+  const wrap = $("#bookwrap"); wrap.innerHTML = `<div class="book" id="book"></div>`;
+  const { w, h, spread } = bookSize(), book = $("#book"); lastSpread = spread;
+  book.style.width = (spread ? w * 2 : w) + "px"; book.style.height = h + "px";
+  const els = pages.map((p, i) => {
+    const d = document.createElement("div"); d.className = "pf";
+    if (p.kind === "cover" || p.kind === "back") d.dataset.density = "hard";
+    d.innerHTML = `<img src="${imgs[i]}" alt="${esc(pageText(p))}" draggable="false">${(p.hot || []).map(t => `<button class="hot" type="button" data-go="${t.go}" aria-label="${esc(t.label)}" style="left:${t.x / PW * 100}%;top:${t.y / PH * 100}%;width:${t.w / PW * 100}%;height:${t.h / PH * 100}%"></button>`).join("")}${i === 0 ? `<span class="hint">Tap to open ▶</span>` : ""}`;
+    book.appendChild(d); return d;
+  });
+  flip = new St.PageFlip(book, {
+    width: w, height: h, size: "fixed", showCover: true, usePortrait: !spread, autoSize: false,
+    drawShadow: true, maxShadowOpacity: .55, flippingTime: 900, mobileScrollSupport: true,
+    swipeDistance: 25, clickEventForward: true, useMouseEvents: true, startPage: Math.min(keep, pages.length - 1)
+  });
+  flip.loadFromHTML(els);
+  els.forEach(d => d.querySelectorAll("[data-go]").forEach(b => b.addEventListener("click", e => { e.stopPropagation(); flip.flip(+b.dataset.go); })));
+  flip.on("flip", e => { idx = e.data; show(); });
+  flip.on("changeOrientation", show);
+  idx = flip.getCurrentPageIndex(); show();
+}
+function show() {
+  if (!flip) return;
+  const n = pages.length, i = flip.getCurrentPageIndex(), two = flip.getOrientation() === "landscape";
+  const right = two && i > 0 && i < n - 1 ? Math.min(n, i + 2) : 0;
+  $("#num").textContent = right ? `${i + 1}–${right} / ${n}` : `${i + 1} / ${n}`;
+  $("#prev").disabled = i === 0; $("#next").disabled = i >= n - (two && i > 0 ? 2 : 1);
+}
+function go(i) { if (flip) flip.flip(Math.max(0, Math.min(pages.length - 1, i))); }
+$("#next").addEventListener("click", () => flip && flip.flipNext());
+$("#prev").addEventListener("click", () => flip && flip.flipPrev());
+addEventListener("keydown", e => {
+  if (!$("#present").hidden || !flip) return;
+  if (e.key === "ArrowRight" || e.key === "PageDown") flip.flipNext();
+  if (e.key === "ArrowLeft" || e.key === "PageUp") flip.flipPrev();
+});
+let rt = 0;
+addEventListener("resize", () => { clearTimeout(rt); rt = setTimeout(() => {
+  if (!pages.length || !flip) return;
+  const { h, spread } = bookSize(), cur = $("#book");
+  if (spread !== lastSpread || Math.abs(cur.clientHeight - h) > 10) mountBook();
+}, 250); });
+
+/* ================= top bar · island · burger · vibe (same as the landing page) ================= */
+const topbar = $("#topbar"), badge = $("#badgeNav"), badgeBtn = $("#badgeBtn");
+function setMenu(open) { if (open && window.__closeBurger) window.__closeBurger(); badge.classList.toggle("open", open); document.documentElement.classList.toggle("island-open", open); badgeBtn.setAttribute("aria-expanded", String(open)); $$("#badgeMenu .btn").forEach(b => b.tabIndex = open ? 0 : -1); }
+let compact = false;
+function onScroll() { const c = scrollY > (innerWidth <= 560 ? 24 : 60); if (c !== compact) { compact = c; topbar.classList.toggle("compact", c); if (!c) setMenu(false); } }
+addEventListener("scroll", onScroll, { passive: true }); onScroll();
+badgeBtn.addEventListener("click", () => setMenu(!badge.classList.contains("open")));
+document.addEventListener("click", e => { if (!badge.contains(e.target)) setMenu(false); });
+addEventListener("keydown", e => { if (e.key === "Escape") setMenu(false); });
+
+const vibeBtn = $("#vibeBtn"), tip = $("#vibeTip"), M = CFG.music || {};
+const bgm = new Audio(M.file || "assets/audio/coastline-slowed-instrumental.mp3");
+bgm.loop = true; bgm.preload = "auto"; bgm.volume = 0;
+const BGM_VOL = M.volume ?? .45;
+let vibe = false, playing = false, fadeT = 0, tipT = 0;
+let userOff = false; try { userOff = sessionStorage.getItem("gfc-vibe-off") === "1"; } catch (e) { }
+function fadeTo(v, ms, done) { clearInterval(fadeT); const from = bgm.volume, t0 = performance.now(); fadeT = setInterval(() => { const k = Math.min(1, (performance.now() - t0) / ms); bgm.volume = Math.max(0, Math.min(1, from + (v - from) * k)); if (k >= 1) { clearInterval(fadeT); done && done(); } }, 50); }
+function paintVibe() {
+  vibeBtn.setAttribute("aria-pressed", String(vibe)); vibeBtn.classList.toggle("waiting", vibe && !playing);
+  vibeBtn.querySelector(".lbl").textContent = vibe ? "Vibe on" : "Vibe off";
+  const bv = $("#bmVibe"), bb = $("#burgerBtn");
+  bv.setAttribute("aria-pressed", String(vibe && playing)); bv.querySelector(".lbl").textContent = vibe && playing ? "Vibe on" : (vibe ? "Tap to start the vibe" : "Vibe off");
+  bb.classList.toggle("waiting", vibe && !playing); bb.classList.toggle("playing", vibe && playing);
+}
+function showTip(t, ms) { tip.textContent = t; tip.classList.remove("gone"); clearTimeout(tipT); if (ms) tipT = setTimeout(() => tip.classList.add("gone"), ms); }
+function startSound() {
+  GFCAmbient.start(); const p = bgm.play();
+  const ok = () => { playing = true; paintVibe(); fadeTo(BGM_VOL, 3000); showTip("🎧 Vibe on · best with earphones", 3500); unlisten(); };
+  if (p && p.then) p.then(ok).catch(() => { playing = false; paintVibe(); showTip("🎧 Tap anywhere to start the vibe · earphones recommended"); }); else ok();
+}
+function vibeOn() { vibe = true; paintVibe(); startSound(); }
+function vibeOff() { vibe = false; playing = false; paintVibe(); GFCAmbient.stop(); fadeTo(0, 900, () => bgm.pause()); showTip("Vibe off. Tap the button any time to bring it back.", 3000); }
+function toggleVibe() { if (vibe && playing) { vibeOff(); userOff = true; } else { userOff = false; vibeOn(); } try { sessionStorage.setItem("gfc-vibe-off", userOff ? "1" : "0"); } catch (e) { } }
+vibeBtn.addEventListener("click", toggleVibe); $("#bmVibe").addEventListener("click", toggleVibe);
+
+const burger = $("#burgerBtn"), bmenu = $("#bmenu");
+function setBurger(open) { bmenu.classList.toggle("open", open); burger.setAttribute("aria-expanded", String(open)); burger.setAttribute("aria-label", open ? "Close menu" : "Open menu"); if (open) setMenu(false); }
+window.__closeBurger = () => setBurger(false);
+function closeMenus() { setBurger(false); setMenu(false); }
+burger.addEventListener("click", e => { e.stopPropagation(); setBurger(!bmenu.classList.contains("open")); });
+bmenu.querySelectorAll("a").forEach(a => a.addEventListener("click", () => setBurger(false)));
+document.addEventListener("click", e => { if (bmenu.classList.contains("open") && !bmenu.contains(e.target) && e.target !== burger) setBurger(false); });
+addEventListener("keydown", e => { if (e.key === "Escape" && bmenu.classList.contains("open")) { setBurger(false); burger.focus(); } });
+addEventListener("resize", () => { if (innerWidth > 560) setBurger(false); });
+const GESTURES = ["pointerdown", "pointerup", "touchend", "click", "keydown"];
+function onGesture(e) { if (e && e.target && e.target.closest && e.target.closest("#vibeBtn, #bmVibe")) return; if (vibe && !playing) startSound(); }
+function unlisten() { GESTURES.forEach(t => removeEventListener(t, onGesture, true)); }
+GESTURES.forEach(t => addEventListener(t, onGesture, true));
+document.addEventListener("visibilitychange", () => { if (!vibe || !playing) return; if (document.hidden) bgm.pause(); else bgm.play().catch(() => {}); });
+if (!userOff) vibeOn(); else { paintVibe(); tip.classList.add("gone"); }
+
+/* ================= present mode ================= */
+let slides = [], si = 0;
+const sg = $("#slide").getContext("2d");
+function renderSlide() { drawSlide(sg, slides[si], si); const s = slides[si]; $("#pPos").textContent = `${s.song ? s.n + ". " + s.song.title + " · " : ""}${si + 1} / ${slides.length}`; }
+function pgo(i) { si = Math.max(0, Math.min(slides.length - 1, i)); renderSlide(); }
+function openPresent() {
+  if (!songs.length) { toast("No songs yet. Add them to songs.txt.", "red"); return; }
+  slides = makeSlides(); si = 0; const p = $("#present"); p.hidden = false; p.classList.remove("blank"); renderSlide();
+  if (p.requestFullscreen) p.requestFullscreen().catch(() => {});
+}
+function closePresent() { $("#present").hidden = true; if (document.fullscreenElement) document.exitFullscreen().catch(() => {}); }
+$$('[data-act="present"]').forEach(b => b.addEventListener("click", () => { closeMenus(); openPresent(); }));
+$("#pClose").addEventListener("click", e => { e.stopPropagation(); closePresent(); });
+$("#present").addEventListener("click", e => { if (e.target.closest(".pbar")) return; pgo(si + (e.clientX < innerWidth * .3 ? -1 : 1)); });
+addEventListener("keydown", e => {
+  if ($("#present").hidden) return;
+  if (["ArrowRight", "PageDown", " ", "Enter"].includes(e.key)) { e.preventDefault(); pgo(si + 1); }
+  if (["ArrowLeft", "PageUp", "Backspace"].includes(e.key)) { e.preventDefault(); pgo(si - 1); }
+  if (e.key === "Home") pgo(0); if (e.key === "End") pgo(slides.length - 1);
+  if (e.key.toLowerCase() === "b") $("#present").classList.toggle("blank");
+  if (e.key === "Escape") closePresent();
+});
+
+/* ================= downloads ================= */
+async function busy(btn, label, fn) {
+  if (!songs.length) { toast("No songs yet. Add them to songs.txt.", "red"); return; }
+  const l = btn.querySelector(".in"), old = l.textContent; btn.disabled = true; l.textContent = label;
+  try { await fn(); } catch (e) { toast(e.message || "Something went wrong.", "red"); } finally { btn.disabled = false; l.textContent = old; }
+}
+const makePDF = btn => busy(btn, "Making PDF…", async () => {
+  if (!window.jspdf) await loadScript("https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js");
+  const doc = new jspdf.jsPDF({ unit: "mm", format: [148, 207.2], orientation: "portrait" });
+  imgs.forEach((d, i) => { if (i) doc.addPage([148, 207.2], "portrait"); doc.addImage(d, "JPEG", 0, 0, 148, 207.2); });
+  doc.setProperties({ title: "Let's Talk GFC · Songbook" });
+  doc.save("LetsTalkGFC-Songbook.pdf"); toast("Songbook PDF downloaded");
+});
+const makePPT = btn => busy(btn, "Making PPT…", async () => {
+  if (!window.PptxGenJS) await loadScript("https://cdn.jsdelivr.net/npm/pptxgenjs@3.12.0/dist/pptxgen.bundle.js");
+  const ppt = new PptxGenJS(); ppt.layout = "LAYOUT_WIDE"; ppt.title = "Let's Talk GFC · Songs";
+  const c = document.createElement("canvas"); c.width = SW; c.height = SH; const g = c.getContext("2d");
+  makeSlides().forEach((s, i) => {
+    drawSlide(g, s, i);
+    const sl = ppt.addSlide(); sl.addImage({ data: c.toDataURL("image/jpeg", .88), x: 0, y: 0, w: 13.333, h: 7.5 });
+    if (s.kind === "lyric") sl.addNotes(`${s.n}. ${s.song.title}${s.label ? " · " + s.label : ""}\n${s.lines.join("\n")}`);
+  });
+  await ppt.writeFile({ fileName: "LetsTalkGFC-Songs.pptx" }); toast("PPT downloaded");
+});
+$$('[data-act="pdf"]').forEach(b => b.addEventListener("click", () => makePDF(b)));
+$$('[data-act="ppt"]').forEach(b => b.addEventListener("click", () => makePPT(b)));
+
+/* ================= load ================= */
+const fontsReady = () => document.fonts ? Promise.all(["italic 900 40px", "italic 800 40px", "500 30px", "600 30px", "700 30px", "italic 500 26px"].map(f => document.fonts.load(F(f)))).then(() => document.fonts.ready) : Promise.resolve();
+const logoReady = new Promise(r => { LOGO = new Image(); LOGO.onload = r; LOGO.onerror = r; LOGO.src = "assets/logo.png"; });
+fetch("songs.txt?v=" + Date.now()).then(r => { if (!r.ok) throw new Error(); return r.text(); })
+  .then(async t => { songs = parse(t); if (!songs.length) throw new Error(); await Promise.all([fontsReady(), logoReady]); build(); })
+  .catch(e => { console.error(e); $("#book").innerHTML = `<div class="empty">No songs found yet. Add them to <b>songs.txt</b>.</div>`; });
+window.__songs = () => ({ songs: songs.length, pages: pages.length, slides: makeSlides().length });
+})();
+</script>
+</body>
+</html>
