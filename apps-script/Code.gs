@@ -55,6 +55,7 @@ function route_(b) {
 function a_info() { return Object.assign({ count: Math.max(0, sheet_().getLastRow() - 1) }, cfg_()); }
 
 function a_register(b) {
+  if (!b.staff && !cfg_().regOpen) throw new Error('Registrations are closed right now. If you already registered, use “Get my pass again”.');
   const v = validate_(b);
   const sh = sheet_(), rows = rows_(sh);
   const hit = rows.find(r => r.rec.phone === v.phone);
@@ -165,6 +166,7 @@ function a_settings(b) {
     if (!(fee >= 0 && fee <= 100000)) throw new Error('Fee must be a number.');
     p.setProperty('FEE', String(fee));
   }
+  if (b.regOpen != null) p.setProperty('REG_OPEN', b.regOpen === true || b.regOpen === 'true' ? 'yes' : 'no');
   return { cfg: cfg_() };
 }
 
@@ -248,7 +250,8 @@ function checkin_(sh, hit) {
 
 function cfg_() {
   const p = PropertiesService.getScriptProperties();
-  return { cutoff: p.getProperty('CUTOFF') || '17:45', fee: Number(p.getProperty('FEE') || 100), eventDate: p.getProperty('EVENT_DATE') || EVENT_DATE };
+  return { cutoff: p.getProperty('CUTOFF') || '17:45', fee: Number(p.getProperty('FEE') || 100), eventDate: p.getProperty('EVENT_DATE') || EVENT_DATE,
+    regOpen: p.getProperty('REG_OPEN') !== 'no' };
 }
 
 function sheet_() {

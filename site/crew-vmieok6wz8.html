@@ -21,6 +21,16 @@
 .stat.free .n{color:var(--lime)} .stat.due .n{color:var(--yellow)} .stat.cash .n{color:var(--cyan)}
 .stat.check .n{color:var(--amber)}
 .b-check{background:var(--amber);color:var(--navy)} .b-ok{background:var(--lime);color:var(--navy)} .b-no{background:#FF7272;color:var(--navy)}
+.regsw .in{display:flex;align-items:center;justify-content:space-between;gap:14px 20px;flex-wrap:wrap;padding:18px 22px}
+.regsw .rs-t{display:flex;flex-direction:column;gap:4px;min-width:0}
+.regsw .rs-k{font:700 13px var(--f-body);letter-spacing:.14em;color:var(--cyan)}
+.regsw .rs-s{display:flex;align-items:center;gap:10px;font:italic 900 clamp(24px,3vw,32px)/1 var(--f-display);text-transform:uppercase}
+.regsw .rs-s i{width:14px;height:14px;border-radius:50%;background:#7F9BD0;flex:none}
+.regsw.open .rs-s{color:var(--lime)} .regsw.open .rs-s i{background:var(--lime);box-shadow:0 0 0 4px rgba(216,255,31,.25)}
+.regsw.closed .rs-s{color:#FF7272} .regsw.closed .rs-s i{background:#FF7272;box-shadow:0 0 0 4px rgba(255,114,114,.25)}
+.regsw .rs-h{font-size:15px;color:var(--ink-dim)}
+.regsw .btn .in{padding:14px 22px;font-size:17px}
+@media (max-width:520px){.regsw .btn,.regsw .btn .in{width:100%}}
 .dstats{display:flex;gap:10px;flex-wrap:wrap;margin:6px 0 4px}
 .dstats span{background:var(--panel);border:2px solid var(--line);padding:6px 12px;font:600 15px var(--f-body)}
 .dstats b{color:var(--lime);font-variant-numeric:tabular-nums}
@@ -60,6 +70,10 @@ tr:hover td{background:rgba(63,220,255,.05)}
   </div>
   <div id="demoSlot"></div>
   <div class="stack">
+    <div class="px regsw" id="regSw"><div class="in">
+      <div class="rs-t"><span class="rs-k">PUBLIC REGISTRATION</span><span class="rs-s"><i aria-hidden="true"></i><span id="rsState">Loading…</span></span><span class="rs-h" id="rsHint"></span></div>
+      <button class="btn px" id="rsBtn" type="button" disabled><span class="in">…</span></button>
+    </div></div>
     <div class="stats" id="stats"></div>
     <div class="px cyan"><div class="in">
       <div class="toolbar">
@@ -126,7 +140,7 @@ tr:hover td{background:rgba(63,220,255,.05)}
 </div>
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
-<script src="assets/gfc.js?v=8"></script>
+<script src="assets/gfc.js?v=9"></script>
 <script>
 (() => {
 const { $, $$, esc, api, Snd, toast, fmtT, fmtDT, cutLabel, CFG } = GFC;
@@ -175,7 +189,30 @@ const PP_AMT = Number((CFG.upi || {}).amount || CFG.lateFee || 100);
 const ppBadge = r => ({
   claimed: `<span class="badge b-check">TO CHECK</span>`, received: `<span class="badge b-ok">RECEIVED ✓</span>`, rejected: `<span class="badge b-no">REJECTED</span>`
 }[r.prepay] || `<span class="dim">—</span>`) + (r.utr ? `<span class="utr" title="UPI transaction ID">UTR ${esc(r.utr)}</span>` : "");
+let rsArmed = 0;
+function renderRegSw() {
+  const box = $("#regSw"), btn = $("#rsBtn"), lbl = btn.querySelector(".in");
+  if (cfg.regOpen === undefined) {
+    box.className = "px regsw"; $("#rsState").textContent = "Not available"; $("#rsHint").textContent = "Update Code.gs in Apps Script and deploy a new version to use this switch.";
+    btn.disabled = true; lbl.textContent = "Open / Close"; return;
+  }
+  const open = cfg.regOpen !== false;
+  box.className = "px regsw " + (open ? "open" : "closed");
+  $("#rsState").textContent = open ? "Open" : "Closed";
+  $("#rsHint").textContent = open ? "People can register on the public page." : "The public page shows “Registrations are closed”. Existing passes, check-in and walk-ins still work.";
+  btn.disabled = false; btn.classList.toggle("danger", open && !rsArmed); btn.classList.toggle("armed", open && !!rsArmed);
+  lbl.textContent = open ? (rsArmed ? "Tap again to close" : "Close registrations") : "Open registrations";
+}
+$("#rsBtn").addEventListener("click", async () => {
+  const open = cfg.regOpen !== false;
+  if (open && !rsArmed) { rsArmed = setTimeout(() => { rsArmed = 0; renderRegSw(); }, 4000); renderRegSw(); return; }
+  clearTimeout(rsArmed); rsArmed = 0; const btn = $("#rsBtn"); btn.disabled = true;
+  try { const r = await api("settings", { pin: PIN, regOpen: !open }); cfg = r.cfg; Snd.good(); toast(cfg.regOpen ? "Registrations are open" : "Registrations are closed"); }
+  catch (e) { toast(e.message, "red"); }
+  renderRegSw();
+});
 function render() {
+  renderRegSw();
   const inn = regs.filter(r => r.checkedInAt).length, free = regs.filter(r => r.dinner === "free").length, due = regs.filter(r => r.dinner === "due");
   const paid = regs.filter(r => r.dinner === "paid").reduce((s, r) => s + (+r.fee || 0), 0);
   const ppCheck = regs.filter(r => r.prepay === "claimed").length, ppOk = regs.filter(r => r.prepay === "received").length;

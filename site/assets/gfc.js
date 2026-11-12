@@ -23,7 +23,7 @@ const cutLabel = c => { const [h, m] = String(c || "17:45").split(":").map(Numbe
 /* ---------------- demo backend (no apiUrl): same rules as Code.gs, this device only ---------------- */
 const Local = (() => {
   const KEY = "gfc-demo-db", ALPH = "ACDEFHJKMNPRTUVWXY34679";
-  const load = () => store.get(KEY, { regs: [], cfg: { cutoff: "17:45", fee: CFG.lateFee } });
+  const load = () => { const d = store.get(KEY, { regs: [], cfg: { cutoff: "17:45", fee: CFG.lateFee } }); if (d.cfg.regOpen === undefined) d.cfg.regOpen = true; return d; };
   const save = d => store.set(KEY, d);
   const mins = ms => { const d = new Date(ms); return d.getHours() * 60 + d.getMinutes(); };
   const cut = c => { const [h, m] = c.split(":").map(Number); return h * 60 + m; };
@@ -48,6 +48,7 @@ const Local = (() => {
   const A = {
     info() { const d = load(); return Object.assign({ count: d.regs.length }, d.cfg); },
     register(b) {
+      if (!b.staff && load().cfg.regOpen === false) throw new Error('Registrations are closed right now. If you already registered, use “Get my pass again”.');
       const d = load(), v = validate(b), ex = d.regs.find(r => r.phone === v.phone);
       if (ex) {
         const same = ex.name.toLowerCase().split(/\s+/)[0] === v.name.toLowerCase().split(/\s+/)[0];
@@ -117,6 +118,7 @@ const Local = (() => {
       const d = load();
       if (b.cutoff != null) { if (!/^([01]\d|2[0-3]):[0-5]\d$/.test(b.cutoff)) throw new Error("Cutoff must look like 17:45."); d.cfg.cutoff = b.cutoff; }
       if (b.fee != null) d.cfg.fee = Math.max(0, Math.round(Number(b.fee) || 0));
+      if (b.regOpen != null) d.cfg.regOpen = b.regOpen === true || b.regOpen === "true";
       save(d); return { cfg: d.cfg };
     }
   };

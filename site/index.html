@@ -173,6 +173,12 @@ label.lab .req{color:var(--lime)}
 .lost{margin-top:18px;border-top:2px dashed #2E58B8;padding-top:14px}
 .lost summary{cursor:pointer;font:600 17px var(--f-body);color:var(--cyan)}
 .lost .fields{margin-top:14px}
+.closedBox{display:flex;flex-direction:column;align-items:center;text-align:center;gap:12px;padding:26px 18px;border:3px dashed #FF7272;background:rgba(255,114,114,.08)}
+.closedBox .lock{width:56px;height:56px;color:#FF7272}
+.closedBox h3{margin:0;font:italic 900 clamp(24px,3.4vw,32px)/1.05 var(--f-display);text-transform:uppercase;color:#fff}
+.closedBox p{margin:0;color:var(--soft);font-size:16px;max-width:44ch;line-height:1.45}
+.closedBox a{color:var(--lime);font-weight:700;text-decoration:none}
+.regClosed #reg,.regClosed .steps{display:none!important}
 .passCol{display:flex;flex-direction:column;gap:12px;align-items:center;justify-content:center}
 .passCol canvas{width:100%;max-width:clamp(260px,19.5vw,300px);height:auto;display:block;box-shadow:0 0 0 4px var(--navy),0 18px 40px rgba(11,24,56,.4)}
 .passCol .st{font:600 17px var(--f-body);text-align:center}
@@ -395,6 +401,11 @@ footer .copy{grid-column:1/-1;border-top:1px solid #1d3770;padding-top:12px;font
           <div class="step"><b>2</b><span>Download pass<small>Saves to your phone</small></span></div>
           <div class="step"><b>3</b><span>Show the QR<small>At the entry, 13 Nov</small></span></div>
         </div>
+        <div class="closedBox" id="closedBox" hidden role="status">
+          <svg class="lock" viewBox="0 0 16 16" aria-hidden="true" shape-rendering="crispEdges"><path fill="currentColor" d="M5 1h6v1h1v1h1v4h1v8H2V7h1V3h1V2h1zm1 2v1H5v3h6V4h-1V3z"/><path fill="#0B1838" d="M7 9h2v3H7z"/></svg>
+          <h3>Registrations are closed</h3>
+          <p>Thank you for your interest in Let's Talk GFC. Online registration is closed right now. Already registered? Get your pass again below. For help, call the Yuvajana Sakhyam Secretary on <a href="tel:+917909191060">+91 79091 91060</a>.</p>
+        </div>
         <form id="reg" novalidate>
           <div class="fields">
             <div class="full"><label class="lab" for="name">Full name <span class="req">*</span></label><input class="inp" id="name" autocomplete="name" placeholder="Your full name" maxlength="80"></div>
@@ -490,7 +501,7 @@ footer .copy{grid-column:1/-1;border-top:1px solid #1d3770;padding-top:12px;font
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcode-generator/1.4.4/qrcode.min.js"></script>
 <script src="assets/ambient.js?v=7"></script>
-<script src="assets/gfc.js?v=8"></script>
+<script src="assets/gfc.js?v=9"></script>
 <script src="assets/pass.js?v=7"></script>
 <script src="assets/games.js?v=7"></script>
 <script>
@@ -626,6 +637,15 @@ if (mine && mine.code) {
   showPass(mine, "Welcome back! Here's your pass.");
 } else paint({ name: "" });
 
+/* registration open / closed (set by the admin panel) */
+function setClosed(closed) {
+  $(".reg .form").classList.toggle("regClosed", closed);
+  $("#closedBox").hidden = !closed;
+  if (closed) { $("#lost").open = true; if (!current) $("#passSt").textContent = "Registrations are closed. Already registered? Find your pass on the left."; }
+  else if (!current) $("#passSt").textContent = "Live preview: type your name to see your pass.";
+}
+api("info").then(r => setClosed(r.regOpen === false)).catch(() => {});
+
 $("#reg").addEventListener("submit", async ev => {
   ev.preventDefault();
   const err = $("#regErr"), name = $("#name").value.trim(), phone = GFC.normPhone($("#phone").value), email = $("#email").value.trim();
@@ -640,7 +660,7 @@ $("#reg").addEventListener("submit", async ev => {
     if (!r.existing) FX.confetti(180);
     $("#reg").reset();
     $("#passCol").scrollIntoView({ behavior: GFC.reduced ? "auto" : "smooth", block: "center" });
-  } catch (e) { err.textContent = e.message; }
+  } catch (e) { if (/registrations are closed/i.test(e.message)) setClosed(true); else err.textContent = e.message; }
   finally { btn.disabled = false; lbl.textContent = "▶ Register & get my pass"; }
 });
 
