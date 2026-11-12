@@ -3,7 +3,8 @@
 (function () {
 "use strict";
 const W = 1080, H = 1800, NAVY = "#0B1838", LIME = "#D8FF1F", CYAN = "#33D4FF", YELLOW = "#FFE81A", BLUE = "#1A55E0";
-let logoImg = null;
+let logoImg = null, titleImg = null;
+function loadTitle() { return titleImg || (titleImg = new Promise(res => { const i = new Image(); i.onload = () => res(i); i.onerror = () => res(null); i.src = "assets/title.png"; })); }
 function loadLogo() {
   if (logoImg) return logoImg;
   logoImg = new Promise(res => { const i = new Image(); i.onload = () => res(i); i.onerror = () => res(null); i.src = "assets/logo.png"; });
@@ -73,7 +74,7 @@ function qrBlock(g, code, x, y, size) {
 
 async function draw(canvas, d) {
   await fontsReady();
-  const logo = await loadLogo();
+  const logo = await loadLogo(), title = await loadTitle();
   canvas.width = W; canvas.height = H;
   const g = canvas.getContext("2d"); g.imageSmoothingEnabled = true; g.textBaseline = "alphabetic";
   const name = String(d.name || "").trim(), code = d.code || "";
@@ -94,14 +95,14 @@ async function draw(canvas, d) {
   outlined(g, "Presents", 650, 222, 'italic 600 38px "Kanit", sans-serif', "#fff", 7);
 
   // title
-  g.save(); g.translate(540, 0); g.rotate(-.07);
+  if (title) { const tw = 920, th = tw * title.height / title.width; g.drawImage(title, 540 - tw / 2, 262, tw, th); }
+  else { g.save(); g.translate(540, 0); g.rotate(-.07);
   outlined(g, "LET'S TALK", 0, 420, 'italic 900 156px "Kanit", "Arial Black", sans-serif', "#fff", 22, 18);
   g.beginPath(); g.moveTo(-300, 650); g.quadraticCurveTo(0, 590, 330, 610); g.quadraticCurveTo(10, 615, -280, 672); g.closePath();
   g.fillStyle = LIME; g.fill(); g.lineWidth = 8; g.strokeStyle = NAVY; g.lineJoin = "round"; g.stroke();
   outlined(g, "GFC", -20, 640, 'italic 900 270px "Kanit", "Arial Black", sans-serif', LIME, 26, 22);
   star4(g, 290, 470, 62);
-  g.restore();
-  spark(g, 120, 560, 14); spark(g, 980, 520, 10); spark(g, 900, 680, 14);
+  g.restore(); spark(g, 120, 560, 14); spark(g, 980, 520, 10); spark(g, 900, 680, 14); }
 
   outlined(g, "God, Faith & Conversations", 540, 770, '700 56px "Kanit", sans-serif', "#fff", 10);
 

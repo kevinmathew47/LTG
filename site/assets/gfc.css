@@ -103,3 +103,10 @@ label.lab{display:block;font-family:var(--f-pixel);font-size:15px;color:var(--cy
 .demo{font-family:var(--f-pixel);font-size:14px}
 .demo .in{padding:10px 16px;background:#3a1c05;color:var(--yellow)}
 @media (prefers-reduced-motion:reduce){*{animation-duration:.001s!important;animation-iteration-count:1!important}}
+
+/* LET'S TALK GFC title artwork */
+.mini-img,.tb-brand img.mini-img,.brand img.mini-img{display:block;height:64px;width:auto;filter:drop-shadow(0 3px 0 rgba(11,24,56,.25))}
+.island .mini-img{height:40px}
+.ttl-img{display:block;width:100%;height:auto}
+@media (max-width:560px){.mini-img{height:50px}.island .mini-img{height:34px}}
+@media (max-width:380px){.mini-img{height:42px}}

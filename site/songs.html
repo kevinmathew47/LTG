@@ -9,7 +9,7 @@
 <link rel="icon" href="assets/logo.png">
 <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Kanit:ital,wght@0,400;0,500;0,600;0,700;0,800;0,900;1,500;1,600;1,700;1,800;1,900&display=swap">
-<link rel="stylesheet" href="assets/gfc.css?v=10">
+<link rel="stylesheet" href="assets/gfc.css?v=11">
 <style>
 /* Songbook. Every page/slide is drawn by one painter (sky, pixel clouds, birds, LET'S TALK GFC),
    so the flipbook, the PDF, Present mode and the PPT look the same. */
@@ -198,7 +198,7 @@ footer{position:relative;z-index:2;background:var(--navy);border-top:3px solid v
 <nav class="topbar" id="topbar" aria-label="Main">
   <div class="bar">
     <a class="tb-brand" href="index.html"><img src="assets/logo.png" alt="Home">
-      <span class="mini-title" id="tbTitle" aria-label="Let's Talk GFC"><span class="otext" data-t="Let's Talk">Let's Talk</span><span class="otext lime" data-t="GFC">GFC</span></span></a>
+      <img class="mini-img" src="assets/title.png" id="tbTitle" alt="Let's Talk GFC"></a>
     <span class="tb-label">SONGBOOK</span>
     <div class="tb-right">
       <button class="btn px" type="button" data-act="present"><span class="in">▶ Present</span></button>
@@ -210,7 +210,7 @@ footer{position:relative;z-index:2;background:var(--navy);border-top:3px solid v
 </nav>
 <div class="island glass" id="badgeNav">
   <button class="island-btn" id="badgeBtn" type="button" aria-expanded="false" aria-controls="badgeMenu" aria-label="Let's Talk GFC menu">
-    <span class="mini-title" aria-hidden="true"><span class="otext" data-t="Let's Talk">Let's Talk</span><span class="otext lime" data-t="GFC">GFC</span></span>
+    <img class="mini-img" src="assets/title.png" alt="Let's Talk GFC">
   </button>
   <div class="island-menu" id="badgeMenu"><div>
     <button class="btn px" type="button" data-act="present" tabindex="-1"><span class="in">▶ Present</span></button>
@@ -319,6 +319,10 @@ function otext(g, t, x, y, s, fill, align = "left") {
   g.strokeStyle = NAVY; g.lineWidth = s * .3; g.strokeText(t, x, y); g.fillStyle = fill; g.fillText(t, x, y); g.restore();
 }
 function lockup(g, x, y, s, align = "left") {
+  if (TITLE && TITLE.naturalWidth) {                 // the LET'S TALK GFC artwork; s ≈ cap height of "LET'S TALK"
+    const h = s * 2.9, w = h * TITLE.naturalWidth / TITLE.naturalHeight;
+    g.drawImage(TITLE, align === "center" ? x - w / 2 : x, y - s * 1.05, w, h); return;
+  }
   g.save(); g.translate(x, y); g.rotate(rad(-4)); g.transform(1, 0, Math.tan(rad(-5)), 1, 0, 0);
   otext(g, "Let's Talk", 0, 0, s, "#FFFFFF", align); otext(g, "GFC", align === "center" ? 0 : s * .02, s * 1.32, s * 1.5, LIME, align); g.restore();
 }
@@ -353,7 +357,7 @@ function wrap(g, text, font, maxW) {
   for (const w of text.split(/\s+/)) { const t = cur ? cur + " " + w : w; if (g.measureText(t).width > maxW && cur) { out.push(cur); cur = w; } else cur = t; }
   if (cur) out.push(cur); return out;
 }
-let LOGO = null;
+let LOGO = null, TITLE = null;
 const logoAt = (g, x, y, h) => { const w = h * LOGO.naturalWidth / LOGO.naturalHeight; g.drawImage(LOGO, x, y, w, h); return w; };
 const ctx = () => { const c = document.createElement("canvas"); return c.getContext("2d"); };
 const MG = ctx();
@@ -673,7 +677,7 @@ $$('[data-act="ppt"]').forEach(b => b.addEventListener("click", () => makePPT(b)
 
 /* ================= load ================= */
 const fontsReady = () => document.fonts ? Promise.all(["italic 900 40px", "italic 800 40px", "500 30px", "600 30px", "700 30px", "italic 500 26px"].map(f => document.fonts.load(F(f)))).then(() => document.fonts.ready) : Promise.resolve();
-const logoReady = new Promise(r => { LOGO = new Image(); LOGO.onload = r; LOGO.onerror = r; LOGO.src = "assets/logo.png"; });
+const logoReady = Promise.all([new Promise(r => { LOGO = new Image(); LOGO.onload = r; LOGO.onerror = r; LOGO.src = "assets/logo.png"; }), new Promise(r => { TITLE = new Image(); TITLE.onload = r; TITLE.onerror = r; TITLE.src = "assets/title.png"; })]);
 fetch("songs.txt?v=" + Date.now()).then(r => { if (!r.ok) throw new Error(); return r.text(); })
   .then(async t => { songs = parse(t); if (!songs.length) throw new Error(); await Promise.all([fontsReady(), logoReady]); build(); })
   .catch(e => { console.error(e); $("#book").innerHTML = `<div class="empty">No songs found yet. Add them to <b>songs.txt</b>.</div>`; });

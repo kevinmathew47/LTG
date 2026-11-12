@@ -17,7 +17,7 @@
 <link rel="icon" href="assets/logo.png">
 <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Kanit:ital,wght@0,400;0,500;0,600;0,700;0,800;0,900;1,700;1,800;1,900&display=swap">
-<link rel="stylesheet" href="assets/gfc.css?v=7">
+<link rel="stylesheet" href="assets/gfc.css?v=11">
 <style>
 /* Website layout: sticky nav · hero (title + speaker) · event details · registration with live pass · memory game · footer. */
 :root{
@@ -119,6 +119,7 @@ section[id]{scroll-margin-top:80px}
 .eyebrow i{font-style:italic;font-weight:700;color:var(--yellow)}
 .hero h1{margin:clamp(30px,4.6vw,84px) 0 6px;align-items:flex-start;transform:rotate(-4deg) skewX(-4deg);transform-origin:left center}
 .hero h1 .l1{--fs:clamp(42px,7.4vw,142px)} .hero h1 .l2{--fs:clamp(72px,12.6vw,236px)}
+.hero h1.has-img{transform:none;width:min(100%,clamp(320px,50vw,960px));margin-top:clamp(18px,3vw,56px)}
 .hero h1 .star{right:-.5em;top:-.04em;width:.66em;height:.66em}
 .hero .tag{font-size:clamp(20px,2.6vw,28px);margin:16px 0 12px}
 .ribbon{font:italic 800 clamp(17px,2vw,21px)/1 var(--f-display);background:var(--lime);color:var(--navy);padding:11px 18px;box-shadow:4px 4px 0 var(--navy)}
@@ -314,7 +315,7 @@ footer .copy{grid-column:1/-1;border-top:1px solid #1d3770;padding-top:12px;font
 <nav class="topbar" id="topbar" aria-label="Main">
   <div class="bar">
     <a class="tb-brand" href="#top" id="tbBrand"><img src="assets/logo.png" alt="Home">
-      <span class="mini-title" id="tbTitle" aria-label="Let's Talk GFC"><span class="otext" data-t="Let's Talk">Let's Talk</span><span class="otext lime" data-t="GFC">GFC</span></span></a>
+      <img class="mini-img" src="assets/title.png" id="tbTitle" alt="Let's Talk GFC"></a>
     <span class="tb-label">REGISTRATION</span>
     <div class="tb-right">
       <span class="tb-cd" id="tbCd">--</span>
@@ -327,7 +328,7 @@ footer .copy{grid-column:1/-1;border-top:1px solid #1d3770;padding-top:12px;font
 </nav>
 <div class="island glass" id="badgeNav">
   <button class="island-btn" id="badgeBtn" type="button" aria-expanded="false" aria-controls="badgeMenu" aria-label="Let's Talk GFC menu">
-    <span class="mini-title" aria-hidden="true"><span class="otext" data-t="Let's Talk">Let's Talk</span><span class="otext lime" data-t="GFC">GFC</span></span>
+    <img class="mini-img" src="assets/title.png" alt="Let's Talk GFC">
   </button>
   <div class="island-menu" id="badgeMenu"><div>
     <a class="btn px" href="#register" id="badgeReg" tabindex="-1"><span class="in">▶ Register now</span></a>
@@ -341,10 +342,7 @@ footer .copy{grid-column:1/-1;border-top:1px solid #1d3770;padding-top:12px;font
   <div class="container">
     <div>
       <p class="eyebrow ptext" style="margin:0"><span>Christos Mar Thoma Church Yuvajana Sakhyam</span><i>presents</i></p>
-      <h1 class="gtitle" aria-label="Let's Talk GFC">
-        <span class="otext l1" data-t="Let's Talk">Let's Talk</span>
-        <span class="otext lime l2" data-t="GFC">GFC<svg class="star" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 0 L14.6 9.4 L24 12 L14.6 14.6 L12 24 L9.4 14.6 L0 12 L9.4 9.4Z" fill="#fff" stroke="#0B1838" stroke-width="1.6" stroke-linejoin="round"/></svg></span>
-      </h1>
+      <h1 class="gtitle has-img" aria-label="Let's Talk GFC"><img class="ttl-img" src="assets/title.png" alt="Let's Talk GFC"></h1>
       <p class="tag ptext">God, Faith &amp; Conversations</p>
       <span class="ribbon">Real questions. Honest conversations.</span>
       <div class="chips">
@@ -504,7 +502,7 @@ footer .copy{grid-column:1/-1;border-top:1px solid #1d3770;padding-top:12px;font
 <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcode-generator/1.4.4/qrcode.min.js"></script>
 <script src="assets/ambient.js?v=7"></script>
 <script src="assets/gfc.js?v=10"></script>
-<script src="assets/pass.js?v=7"></script>
+<script src="assets/pass.js?v=8"></script>
 <script src="assets/games.js?v=7"></script>
 <script>
 (() => {
