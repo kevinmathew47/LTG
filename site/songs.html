@@ -430,14 +430,15 @@ function drawPage(p, i, total, sc = 1) {
   } else if (p.kind === "toc") {
     frame(g, 2, i + 1);
     otext(g, "Contents", IX, 320, 64, "#FFFFFF");
+    const step = Math.min(150, Math.floor((1262 - 380) / songs.length)), h = step - 18, k2 = h / 128;   // rows shrink to fit every song
     songs.forEach((s, k) => {
-      const y = 380 + k * 150, h = 128;
+      const y = 380 + k * step, b = Math.round(68 * k2);
       g.fillStyle = "#0E2150"; g.fillRect(IX, y, IW, h); g.strokeStyle = "#2E58B8"; g.lineWidth = 3; g.strokeRect(IX, y, IW, h);
-      g.fillStyle = LIME; g.fillRect(IX + 24, y + 30, 68, 68); g.fillStyle = NAVY; g.font = F("italic 900 40px"); g.textAlign = "center"; g.fillText(k + 1, IX + 58, y + 79); g.textAlign = "left";
-      const t = wrap(g, s.title, "700 36px", IW - 270)[0];
-      g.fillStyle = "#FFFFFF"; g.font = F("700 36px"); g.fillText(t, IX + 118, y + 60);
-      g.fillStyle = SOFT; g.font = F("500 26px"); g.fillText(s.by, IX + 118, y + 98);
-      g.fillStyle = CYAN; g.font = F("600 28px"); g.textAlign = "right"; g.fillText(`p. ${s.page}`, IX + IW - 26, y + 76); g.textAlign = "left";
+      g.fillStyle = LIME; g.fillRect(IX + 20, y + (h - b) / 2, b, b); g.fillStyle = NAVY; g.font = F(`italic 900 ${Math.round(40 * k2)}px`); g.textAlign = "center"; g.fillText(k + 1, IX + 20 + b / 2, y + h / 2 + 14 * k2); g.textAlign = "left";
+      const tf = `700 ${Math.round(36 * k2)}px`, t = wrap(g, s.title, tf, IW - 270)[0];
+      g.fillStyle = "#FFFFFF"; g.font = F(tf); g.fillText(t, IX + 44 + b, y + h * .47);
+      g.fillStyle = SOFT; g.font = F(`500 ${Math.round(26 * k2)}px`); g.fillText(s.by, IX + 44 + b, y + h * .78);
+      g.fillStyle = CYAN; g.font = F(`600 ${Math.round(28 * k2)}px`); g.textAlign = "right"; g.fillText(`p. ${s.page}`, IX + IW - 26, y + h / 2 + 10 * k2); g.textAlign = "left";
       p.hot.push({ x: IX, y, w: IW, h, go: s.page - 1, label: `${s.title}, page ${s.page}` });
     });
   } else {
